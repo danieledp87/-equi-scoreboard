@@ -1,0 +1,15 @@
+[build]
+  publish = "."
+  command = ""
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://api.equiresults.com/v1/:splat"
+  status = 200
+  force = true
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-store"
+    Access-Control-Allow-Origin = "*"

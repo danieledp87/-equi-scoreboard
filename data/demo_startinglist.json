@@ -1,0 +1,45 @@
+{
+  "class_id": 322284,
+  "starting_list_count": 42,
+  "starting_lists": [
+    {
+      "entry_order": 18,
+      "head_number": 53,
+      "rider": {
+        "name": "Luiz Felipe",
+        "surname": "de Azevedo",
+        "nationality": "BRA"
+      },
+      "horse": {
+        "full_name": "Quibus van Olv Hove"
+      },
+      "not_in_competition": false
+    },
+    {
+      "entry_order": 19,
+      "head_number": 124,
+      "rider": {
+        "name": "Francesco",
+        "surname": "Turturiello",
+        "nationality": "ITA"
+      },
+      "horse": {
+        "full_name": "Quarzo della Caccia"
+      },
+      "not_in_competition": false
+    },
+    {
+      "entry_order": 20,
+      "head_number": 88,
+      "rider": {
+        "name": "Jessica",
+        "surname": "Burke",
+        "nationality": "USA"
+      },
+      "horse": {
+        "full_name": "Good Star du Bar"
+      },
+      "not_in_competition": false
+    }
+  ]
+}

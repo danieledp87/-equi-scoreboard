@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Equi Scoreboard</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="bg"></div>
+
+  <div class="canvas">
+    <div class="topbar">
+      <div class="title">
+        <div class="classNo" id="classNo">06</div>
+        <div style="min-width:0">
+          <div class="className" id="className">—</div>
+          <div class="subtitle" id="subtitle">—</div>
+        </div>
+      </div>
+      <div class="badges">
+        <div class="badge" id="modeBadge">
+          <span class="led" id="liveLed" aria-hidden="true"></span>
+          <span id="modeBadgeText">—</span>
+        </div>
+        <div class="badge" id="clock">--:--:--</div>
+      </div>
+    </div>
+
+    <div class="main">
+      <!-- LIVE layout -->
+      <div class="gridLive" id="layoutLive">
+        <div class="panel">
+          <div class="panelHeader">CURRENT COMPETITION</div>
+          <div class="rows" id="rowsLive"></div>
+        </div>
+
+        <div class="right">
+          <div class="box">
+            <div class="boxHeader"><span>LAST</span><span id="lastRank">—</span></div>
+            <div class="boxBody">
+              <div class="bigLine"><img class="flagIcon" id="lastFlag" alt="" /><span id="lastRider">—</span><span class="bib" id="lastBib"></span></div>
+              <div class="midLine" id="lastHorse">—</div>
+              <div class="kv">
+                <div><span class="small">Score</span> <span id="lastScore">—</span></div>
+                <div><span class="small">Time</span> <span id="lastTime">—</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="box">
+            <div class="boxHeader"><span>NEXT</span><span id="nextOrder">—</span></div>
+            <div class="boxBody">
+              <div class="bigLine"><img class="flagIcon" id="nextFlag" alt="" /><span id="nextRider">—</span><span class="bib" id="nextBib"></span></div>
+              <div class="midLine" id="nextHorse">—</div>
+            </div>
+          </div>
+          <div class="rightStats" id="rightStats">
+            <div class="statMini total"><div class="label">TOTAL</div><div class="value" id="statTotal">—</div></div>
+            <div class="statMini"><div class="label">ALLOWED</div><div class="value" id="statAllowed">—</div></div>
+            <div class="statMini"><div class="label">provisional<br/>FINISH</div><div class="value" id="statEta">—</div></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- FINAL layout -->
+      
+      <!-- FINAL layout -->
+      <div class="gridFinal" id="layoutFinal" style="display:none">
+        <div class="panel finalPanel">
+          <div class="panelHeader">FINAL RESULTS</div>
+          <div class="finalTwoCols">
+            <div class="rows" id="rowsFinalLeft"></div>
+            <div class="rows" id="rowsFinalRight"></div>
+          </div>
+        </div>
+      </div>
+
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div class="setup" id="setup">
+    <div class="setupCard">
+      <h2>Setup</h2>
+      <div class="grid">
+        <div>
+          <label>Competition ID (API mode)</label>
+          <input id="competitionId" value="14277"/>
+        </div>
+        <div>
+          <label>Arena</label>
+          <div class="arenaRow">
+            <select id="arenaSelect">
+              <option value="">(carica arene…)</option>
+            </select>
+            <button id="loadArenasBtn" type="button" class="secondary smallBtn">Carica</button>
+          </div>
+        </div>
+        <div>
+          <label>Mode / sorgente dati</label>
+          <select id="modeSelect">
+            <option value="api" selected>API (live)</option>
+            <option value="demo">Demo (offline)</option>
+            <option value="sample">Equiresults sample (14277 / 322284)</option>
+          </select>
+        </div>
+        <div>
+          <label>Layout</label>
+          <select id="layoutSelect">
+            <option value="live">Live overlay</option>
+            <option value="final">Final results (2 colonne)</option>
+          </select>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="startBtn">Avvia (auto-refresh)</button>
+        <div class="setupStatus" id="setupStatus" aria-live="polite"></div>
+      </div>
+      <div class="hint">
+        Demo offline funziona sempre. Se in API mode il browser blocca per CORS/token, passiamo alla variante con proxy.
+      </div>
+      <div class="status" id="setupStatus"></div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>

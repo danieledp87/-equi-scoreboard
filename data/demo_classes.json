@@ -1,0 +1,32 @@
+[
+  {
+    "id": 322284,
+    "is_visible": true,
+    "is_finished": false,
+    "is_started": true,
+    "is_live": true,
+    "has_official_results_list": false,
+    "has_starting_order": true,
+    "starting_list_count": 42,
+    "fise_class_id": "06",
+    "date": "2026-01-29T00:00:00+0100",
+    "class_name": "Int. jumping competition - accumulator",
+    "arena_name": "GIULIO CESARE",
+    "updated": "1740000201"
+  },
+  {
+    "id": 322283,
+    "is_visible": true,
+    "is_finished": true,
+    "is_started": true,
+    "is_live": true,
+    "has_official_results_list": true,
+    "has_starting_order": true,
+    "starting_list_count": 20,
+    "fise_class_id": "03",
+    "date": "2026-01-29T00:00:00+0100",
+    "class_name": "Int. jumping comp. against the clock",
+    "arena_name": "GIULIO CESARE",
+    "updated": "1739990000"
+  }
+]

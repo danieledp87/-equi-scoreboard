@@ -1,0 +1,187 @@
+{
+  "class_id": 322284,
+  "is_live": true,
+  "is_finished": false,
+  "results": [
+    {
+      "id": 1,
+      "ranking_position": 1,
+      "ranking_position_explained": "1",
+      "head_number": 52,
+      "points": 65,
+      "faults": "0/0",
+      "time": "45.46",
+      "updated": "1740000201",
+      "rider": {
+        "name": "Luca",
+        "surname": "Coata",
+        "nationality": "ITA"
+      },
+      "horse": {
+        "full_name": "Holly del Rilate"
+      }
+    },
+    {
+      "id": 2,
+      "ranking_position": 2,
+      "ranking_position_explained": "2",
+      "head_number": 126,
+      "points": 65,
+      "faults": "0/0",
+      "time": "45.81",
+      "updated": "1740000150",
+      "rider": {
+        "name": "Giuseppe",
+        "surname": "Rolli",
+        "nationality": "ITA"
+      },
+      "horse": {
+        "full_name": "Eiffel de Hus"
+      }
+    },
+    {
+      "id": 3,
+      "ranking_position": 3,
+      "ranking_position_explained": "3",
+      "head_number": 17,
+      "points": 65,
+      "faults": "0/0",
+      "time": "46.32",
+      "updated": "1740000100",
+      "rider": {
+        "name": "Olivier",
+        "surname": "Philippaerts",
+        "nationality": "BEL"
+      },
+      "horse": {
+        "full_name": "H&M Qualithina van't Ruytershof"
+      }
+    },
+    {
+      "id": 4,
+      "ranking_position": 4,
+      "ranking_position_explained": "4",
+      "head_number": 94,
+      "points": 65,
+      "faults": "0/0",
+      "time": "48.12",
+      "updated": "1740000050",
+      "rider": {
+        "name": "Clara",
+        "surname": "Pezzoli",
+        "nationality": "ITA"
+      },
+      "horse": {
+        "full_name": "Los Angeles"
+      }
+    },
+    {
+      "id": 5,
+      "ranking_position": 5,
+      "ranking_position_explained": "5",
+      "head_number": 47,
+      "points": 65,
+      "faults": "0/0",
+      "time": "48.44",
+      "updated": "1739999950",
+      "rider": {
+        "name": "Robert",
+        "surname": "Whitaker",
+        "nationality": "GBR"
+      },
+      "horse": {
+        "full_name": "Strike A Pose"
+      }
+    },
+    {
+      "id": 6,
+      "ranking_position": 6,
+      "ranking_position_explained": "6",
+      "head_number": 57,
+      "points": 65,
+      "faults": "0/0",
+      "time": "50.49",
+      "updated": "1739999900",
+      "rider": {
+        "name": "Jane",
+        "surname": "Richard",
+        "nationality": "FRA"
+      },
+      "horse": {
+        "full_name": "Legend SMH"
+      }
+    },
+    {
+      "id": 7,
+      "ranking_position": 7,
+      "ranking_position_explained": "7",
+      "head_number": 15,
+      "points": 65,
+      "faults": "0/0",
+      "time": "52.45",
+      "updated": "1739999850",
+      "rider": {
+        "name": "Max",
+        "surname": "Kühner",
+        "nationality": "AUT"
+      },
+      "horse": {
+        "full_name": "Eic Cornet's Lady"
+      }
+    },
+    {
+      "id": 8,
+      "ranking_position": 8,
+      "ranking_position_explained": "8",
+      "head_number": 83,
+      "points": 65,
+      "faults": "0/0",
+      "time": "52.80",
+      "updated": "1739999800",
+      "rider": {
+        "name": "Andrea",
+        "surname": "Calabro",
+        "nationality": "ITA"
+      },
+      "horse": {
+        "full_name": "Mayrock"
+      }
+    },
+    {
+      "id": 9,
+      "ranking_position": 9,
+      "ranking_position_explained": "9",
+      "head_number": 147,
+      "points": 63,
+      "faults": "0/0",
+      "time": "53.76",
+      "updated": "1739999750",
+      "rider": {
+        "name": "Mariano",
+        "surname": "Martinez Bastida",
+        "nationality": "ESP"
+      },
+      "horse": {
+        "full_name": "Classic Dakota"
+      }
+    },
+    {
+      "id": 10,
+      "ranking_position": 10,
+      "ranking_position_explained": "10",
+      "head_number": 75,
+      "points": 60,
+      "faults": "0/0",
+      "time": "47.23",
+      "updated": "1739999700",
+      "rider": {
+        "name": "Pieter",
+        "surname": "Devos",
+        "nationality": "BEL"
+      },
+      "horse": {
+        "full_name": "Panamarenka van den Blauwaert"
+      }
+    }
+  ]
+}
