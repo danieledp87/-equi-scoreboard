@@ -960,6 +960,4 @@ showSetup();
     });
   }
 
-  // first render immediately (demo)
-  await tick();
 });
