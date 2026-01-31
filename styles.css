@@ -444,17 +444,20 @@ body.setup-open #bg{opacity:0.35;}
   position:fixed;
   inset:0;
   z-index:2147483000;              /* sopra tutto */
-  background:rgba(0,0,0,.65);
+  background:rgba(0,0,0,.72);
   display:flex;
   align-items:center;
   justify-content:center;
   padding:18px;
   backdrop-filter:blur(6px);
   pointer-events:auto;       /* assicura click/input */
+  opacity:1;
+  transition:opacity .18s ease;
 }
 
 .setup.hidden{
-  display:none !important;
+  opacity:0;
+  pointer-events:none;
 }
 
 .setupCard{
