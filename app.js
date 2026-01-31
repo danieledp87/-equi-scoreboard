@@ -849,9 +849,6 @@ function showSetup(){
   const setup = $("setup");
   if(setup){
     setup.classList.remove("hidden");
-    setup.style.display = "flex";
-    setup.style.opacity = "1";
-    setup.style.pointerEvents = "auto";
     document.body.classList.add("setup-open");
   }
 }
@@ -859,10 +856,6 @@ function hideSetup(){
   const setup = $("setup");
   if(setup){
     setup.classList.add("hidden");
-    setup.style.opacity = "0";
-    setup.style.pointerEvents = "none";
-    // defer display none to allow fade-out
-    setTimeout(()=>{ if(setup.classList.contains("hidden")) setup.style.display = "none"; }, 200);
     document.body.classList.remove("setup-open");
   }
 }
