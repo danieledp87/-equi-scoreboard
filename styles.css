@@ -505,3 +505,116 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   color:rgba(255,255,255,.78);
   font-weight:900
 }
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+  .canvas {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .topbar {
+    height: auto;
+    padding: 12px 16px;
+  }
+
+  .classNo {
+    font-size: 32px;
+  }
+
+  .className {
+    font-size: 18px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+  }
+
+  .main {
+    height: auto;
+    padding: 1% 1% 0.15% 1%;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .gridLive {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2%;
+    height: auto;
+    min-height: 0;
+  }
+
+  .gridLive .panel {
+    height: auto;
+    min-height: 300px;
+  }
+
+  .gridLive .rows {
+    height: 100%;
+    min-height: 200px;
+  }
+
+  .right {
+    height: auto;
+    flex-direction: column;
+    gap: 1.2%;
+    width: 100%;
+  }
+
+  .box {
+    width: 100%;
+    min-height: 120px;
+  }
+
+  .rightStats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    width: 100%;
+    margin-top: 1.2%;
+  }
+
+  .badge {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .pos {
+    display: inline;
+    margin-right: 6px;
+  }
+
+  .flag {
+    width: 32px;
+    height: 22px;
+    display: inline-block;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  .flagIcon {
+    width: 32px;
+    height: 22px;
+    margin-right: 8px;
+  }
+
+  .statMini {
+    aspect-ratio: auto;
+    padding: 10px;
+    min-height: 80px;
+  }
+
+  .statMini .label {
+    font-size: 11px;
+  }
+
+  .statMini .value {
+    font-size: 18px;
+  }
+}
