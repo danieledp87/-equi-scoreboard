@@ -850,6 +850,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 function showSetup(){
   const setup = $("setup");
   if(setup){
+    setup.classList.remove("hidden");
     setup.style.display = "flex";
     document.body.classList.add("setup-open");
   }
@@ -857,6 +858,7 @@ function showSetup(){
 function hideSetup(){
   const setup = $("setup");
   if(setup){
+    setup.classList.add("hidden");
     setup.style.display = "none";
     document.body.classList.remove("setup-open");
   }
