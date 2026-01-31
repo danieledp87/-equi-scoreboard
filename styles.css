@@ -21,6 +21,13 @@ body{
   background:#050a16;
 }
 
+/* quando il setup è aperto sfoca il board e disabilita i click */
+body.setup-open .canvas{
+  filter:blur(4px) brightness(.7);
+  pointer-events:none;
+}
+body.setup-open #bg{opacity:0.35;}
+
 /* BACKGROUND LAYER (robusto online) */
 #bg{
   position:fixed;
@@ -436,21 +443,24 @@ body{
 .setup{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.55);
-  display:flex;
+  z-index:2147483000;              /* sopra tutto */
+  background:rgba(0,0,0,.65);
+  display:flex !important;
   align-items:center;
   justify-content:center;
   padding:18px;
-  backdrop-filter:blur(6px)
+  backdrop-filter:blur(6px);
+  pointer-events:auto;       /* assicura click/input */
 }
 
 .setupCard{
+  position:relative;         /* <-- aggiungi */
   width:min(760px,96vw);
   border:1px solid var(--stroke);
   background:rgba(8,14,28,.78);
   border-radius:14px;
   padding:16px;
-  box-shadow:0 18px 40px rgba(0,0,0,.45)
+  box-shadow:0 18px 40px rgba(0,0,0,.45);
 }
 
 .setupCard h2{margin:0 0 10px 0;font-size:18px}
@@ -504,6 +514,22 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   font-size:12px;
   color:rgba(255,255,255,.78);
   font-weight:900
+}
+
+/* floating button to riaprire il setup */
+.setupToggle{
+  position:fixed;
+  top:12px;
+  right:12px;
+  z-index:11000;
+  padding:10px 14px;
+  border-radius:10px;
+  border:1px solid rgba(0,190,255,.35);
+  background:rgba(0,190,255,.22);
+  color:rgba(255,255,255,.92);
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,.35);
 }
 
 /* MOBILE RESPONSIVE */

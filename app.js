@@ -846,6 +846,24 @@ function applySetup(){
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+// helpers to show/hide setup with body class (keeps it on top)
+function showSetup(){
+  const setup = $("setup");
+  if(setup){
+    setup.style.display = "flex";
+    document.body.classList.add("setup-open");
+  }
+}
+function hideSetup(){
+  const setup = $("setup");
+  if(setup){
+    setup.style.display = "none";
+    document.body.classList.remove("setup-open");
+  }
+}
+
+// make sure the setup overlay is visible on first load (in case a cached display:none sticks around)
+showSetup();
   fillSetup();
   setStatus("");
   $("clock").textContent = nowClock();
@@ -898,10 +916,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   $("startBtn").addEventListener("click", async () => {
     applySetup();
-    $("setup").style.display = "none";
+    hideSetup();
     await tick();
     setInterval(tick, state.refreshMs);
   });
+
+  // floating button to reopen setup
+  const openBtn = $("openSetup");
+  if(openBtn){
+    openBtn.addEventListener("click", () => {
+      showSetup();
+    });
+  }
 
   // first render immediately (demo)
   await tick();
