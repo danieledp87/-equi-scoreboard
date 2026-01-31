@@ -971,7 +971,8 @@ showSetup();
   const openBtn = $("openSetup");
   if(openBtn){
     openBtn.addEventListener("click", () => {
-      showSetup();
+      // semplice refresh per tornare al pannello iniziale
+      location.reload();
     });
   }
 
