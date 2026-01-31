@@ -2,7 +2,8 @@ const API_BASE = `${location.origin}/api`; // same-origin proxy (avoids CORS)
 // const DIRECT_API = "https://api.equiresults.com/v1";
 
 // If you deploy without the ./assets/flags folder, keep this ON.
-const USE_EMBEDDED_FLAGS = true;
+// On Render abbiamo le SVG in assets/flags, quindi usiamo i file reali.
+const USE_EMBEDDED_FLAGS = false;
 
 
 const EQUI_SAMPLE = {
