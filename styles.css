@@ -522,18 +522,21 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
 
 /* floating button to riaprire il setup */
 .setupToggle{
-  position:fixed;
-  top:12px;
-  right:12px;
-  z-index:11000;
-  padding:10px 14px;
-  border-radius:10px;
-  border:1px solid rgba(0,190,255,.35);
-  background:rgba(0,190,255,.22);
-  color:rgba(255,255,255,.92);
-  font-weight:900;
+  border:1px solid var(--stroke);
+  background:rgba(0,0,0,.20);
+  color:var(--muted);
+  font-weight:950;
+  font-size:clamp(14px,1.25vw,20px);
+  padding:12px 16px;
+  border-radius:999px;
   cursor:pointer;
-  box-shadow:0 8px 20px rgba(0,0,0,.35);
+  box-shadow:none;
+  transition:border-color .2s, color .2s, background .2s;
+}
+.setupToggle:hover{
+  border-color:var(--stroke2);
+  color:var(--accent);
+  background:rgba(0,190,255,.12);
 }
 
 /* MOBILE RESPONSIVE */
