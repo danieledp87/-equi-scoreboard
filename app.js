@@ -902,8 +902,8 @@ function hideSetup(){
     setup.classList.add("hidden");
     setup.style.opacity = "0";
     setup.style.pointerEvents = "none";
-    // keep display flex to allow quick reopen
-    setup.style.display = "flex";
+    // hide after fade-out
+    setTimeout(()=>{ if(setup.classList.contains("hidden")) setup.style.display = "none"; }, 200);
     document.body.classList.remove("setup-open");
   }
 }
