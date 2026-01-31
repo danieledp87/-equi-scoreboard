@@ -38,7 +38,7 @@ body.setup-open #bg{opacity:0.35;}
   background:
     radial-gradient(circle at 60% 45%, rgba(0,190,255,.10), transparent 55%),
     linear-gradient(180deg, rgba(5,10,22,1), rgba(2,4,12,1)),
-    /* relative path so it works when served from a subfolder (e.g. GitHub Pages) */
+    /* sfondo principale PNG */
     url("./assets/bg.png") center/cover no-repeat;
 
   filter:saturate(1.05);
