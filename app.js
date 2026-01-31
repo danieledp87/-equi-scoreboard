@@ -129,6 +129,21 @@ function trimmedMean(values){
   return trimmed.reduce((a,b)=>a+b,0) / trimmed.length;
 }
 
+function isOutOfCompetition(r){
+  const posLabel = safeStr(r.ranking_position_explained || r.ranking_position || "").toUpperCase();
+  return posLabel.includes("F.C");
+}
+
+function isInvalidRank(r){
+  const posLabel = safeStr(r.ranking_position_explained || r.ranking_position || "").toUpperCase();
+  return posLabel.includes("ELIM") || posLabel.includes("RIT") || posLabel.includes("N.P");
+}
+
+function rankingValue(r){
+  const v = Number(r.ranking_position);
+  return Number.isFinite(v) ? v : 9999;
+}
+
 function flagDataUri(label){
   const txt = safeStr(label).trim().toUpperCase().slice(0,3) || "—";
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="56" viewBox="0 0 80 56">
@@ -541,11 +556,11 @@ function resetPaging(pageCount, key){
 function setStats(totalDone, totalAll, standings){
   const totalEl = $("statTotal");
   totalEl.textContent = totalAll ? `${totalDone}/${totalAll}` : `${totalDone}/—`;
-  // best time so far
-  const times = (standings||[])
-    .map(r => safeNum(r.time))
-    .filter(t => Number.isFinite(t) && t > 0 && t < 1000);
-  const best = times.length ? Math.min(...times) : null;
+  // time to beat = tempo del leader (rank 1) che non sia F.C.
+  const leader = (standings||[])
+    .filter(r => !isOutOfCompetition(r) && !isInvalidRank(r) && Number.isFinite(safeNum(r.time)) && safeNum(r.time) > 0 && safeNum(r.time) < 1000)
+    .sort((a,b)=> rankingValue(a) - rankingValue(b))[0];
+  const best = leader ? safeNum(leader.time) : null;
   $("statAllowed").textContent = best ? `${best.toFixed(2)} s` : "—";
   const etaEl = $("statEta");
   if(etaEl && !etaEl.classList.contains("etaPending")){
