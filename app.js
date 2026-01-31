@@ -389,7 +389,12 @@ function trackArrivals(results){
 
     // prefer server timestamp if present, fallback to now
     const upd = Number(r.updated);
-    let ts = Number.isFinite(upd) && upd > 0 ? upd * 1000 : Date.now();
+    const now = Date.now();
+    let ts = Number.isFinite(upd) && upd > 0 ? upd * 1000 : now;
+    // sanitize: if server ts is far in the past/future, clamp to now
+    const skew = ts - now;
+    const maxSkew = 5 * 60 * 1000; // 5 minutes
+    if(skew < -maxSkew || skew > maxSkew) ts = now;
     if(ts <= lastTs) ts = lastTs + 1; // ensure monotonic increasing
     state.finishArrivals.push(ts);
     lastTs = ts;
