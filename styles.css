@@ -458,7 +458,7 @@ body.setup-open #bg{opacity:0.35;}
 .setup.hidden{
   opacity:0;
   pointer-events:none;
-  /* lasciamo display:flex per poter riapparire subito */
+  display:none !important;
 }
 
 .setupCard{
