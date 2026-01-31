@@ -458,7 +458,6 @@ body.setup-open #bg{opacity:0.35;}
 .setup.hidden{
   opacity:0;
   pointer-events:none;
-  display:none !important;
 }
 
 .setupCard{
