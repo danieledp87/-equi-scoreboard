@@ -967,12 +967,19 @@ showSetup();
     setInterval(tick, state.refreshMs);
   });
 
+  function forceReload(){
+    // force a full reload like Cmd/Ctrl+R (with cache-busting rnd param)
+    const url = new URL(window.location.href);
+    url.searchParams.set("rnd", Date.now().toString());
+    window.location.href = url.toString();
+  }
+
   // floating button to reopen setup
   const openBtn = $("openSetup");
   if(openBtn){
-    openBtn.addEventListener("click", () => {
-      // semplice refresh per tornare al pannello iniziale
-      location.reload();
+    openBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      forceReload();
     });
   }
 
