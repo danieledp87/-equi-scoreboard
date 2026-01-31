@@ -551,24 +551,27 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
 
   .topbar {
     height: auto;
-    padding: 12px 16px;
+    padding: 18px 16px 14px 16px;
+    gap: 10px;
   }
 
   .classNo {
-    font-size: 32px;
+    font-size: 34px;
   }
 
   .className {
-    font-size: 18px;
+    font-size: 19px;
+    margin-top: 2px;
   }
 
   .subtitle {
-    font-size: 12px;
+    font-size: 13px;
+    opacity: .9;
   }
 
   .main {
     height: auto;
-    padding: 1% 1% 0.15% 1%;
+    padding: 8px 10px 12px 10px;
     overflow-y: auto;
     flex: 1;
   }
@@ -576,38 +579,31 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   .gridLive {
     display: flex;
     flex-direction: column;
-    gap: 1.2%;
+    gap: 12px;
     height: auto;
     min-height: 0;
   }
 
-  .gridLive .panel {
-    height: auto;
-    min-height: 300px;
-  }
+  /* order on mobile: LAST, CURRENT, NEXT, stats */
+  .right { order: 1; width: 100%; height: auto; flex-direction: column; gap: 10px; }
+  .panel { order: 2; width: 100%; }
+  .rightStats { order: 3; margin-top: 6px; }
 
-  .gridLive .rows {
-    height: 100%;
-    min-height: 200px;
-  }
+  .gridLive .panel { height: auto; min-height: 260px; }
+  .gridLive .rows { height: 100%; min-height: 200px; }
 
-  .right {
-    height: auto;
-    flex-direction: column;
-    gap: 1.2%;
-    width: 100%;
-  }
-
-  .box {
-    width: 100%;
-    min-height: 120px;
-  }
+  .box { width: 100%; min-height: 120px; }
 
   .rightStats {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     width: 100%;
     margin-top: 1.2%;
+  }
+
+  .panelHeader, .boxHeader {
+    padding: 12px 14px;
+    font-size: 15px;
   }
 
   .badge {
