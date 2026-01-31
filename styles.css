@@ -36,10 +36,10 @@ body.setup-open #bg{opacity:0.35;}
   pointer-events:none;
 
   background:
+    /* mettiamo prima l'immagine per tenerla sopra i gradienti */
+    url("./assets/bg_2.png") center/cover no-repeat,
     radial-gradient(circle at 60% 45%, rgba(0,190,255,.10), transparent 55%),
-    linear-gradient(180deg, rgba(5,10,22,1), rgba(2,4,12,1)),
-    /* sfondo principale PNG */
-    url("./assets/bg_2.png") center/cover no-repeat;
+    linear-gradient(180deg, rgba(5,10,22,1), rgba(2,4,12,1));
 
   filter:saturate(1.05);
 }
