@@ -606,12 +606,20 @@ function renderLive(standings, last, next, totalDone, totalAll, isLive, pageKey)
   rows.innerHTML = "";
 
   const sorted = standings.slice().sort((a,b)=>Number(a.ranking_position||9999)-Number(b.ranking_position||9999));
-  const fit = rowsThatFit("rowsLive", sorted[0] || dummyRow());
-  const pageCount = Math.max(1, Math.ceil(sorted.length / fit));
-  advancePageIfDue(pageCount, pageKey);
-  state.page = state.page % pageCount;
-  const start = state.page * fit;
-  const pageItems = sorted.slice(start, start + fit);
+  // mobile: mostra solo i primi 10, scrollabili, senza paging
+  const isMobile = window.innerWidth <= 768;
+  let pageItems;
+  if(isMobile){
+    pageItems = sorted.slice(0, 10);
+    state.page = 0;
+  }else{
+    const fit = rowsThatFit("rowsLive", sorted[0] || dummyRow());
+    const pageCount = Math.max(1, Math.ceil(sorted.length / fit));
+    advancePageIfDue(pageCount, pageKey);
+    state.page = state.page % pageCount;
+    const start = state.page * fit;
+    pageItems = sorted.slice(start, start + fit);
+  }
 
   const animKey = `${pageKey}|${state.page}`;
   const shouldAnimate = state.lastAnimKey !== animKey;

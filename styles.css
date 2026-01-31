@@ -593,7 +593,7 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   .rightStats { order: 3; margin-top: 6px; }
 
   .gridLive .panel { height: auto; min-height: 220px; }
-  .gridLive .rows { height: auto; max-height: none; min-height: 180px; }
+  .gridLive .rows { height: auto; max-height: 420px; min-height: 200px; overflow-y:auto; }
 
   .box { width: 100%; min-height: 120px; }
 
@@ -606,7 +606,7 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
 
   .panelHeader, .boxHeader {
     padding: 12px 14px;
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .badge {
@@ -616,8 +616,8 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
 
   .row {
     grid-template-columns: 1fr;
-    gap: 8px;
-    padding: 10px 12px;
+    gap: 6px;
+    padding: 10px 10px;
   }
 
   .pos {
@@ -646,6 +646,10 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   .rows .row{
     padding: 12px 12px;
   }
+
+  .riderLine{ font-size: 15px; }
+  .horseLine{ font-size: 13px; }
+  .score,.time{ font-size: 15px; }
 
   .statMini {
     aspect-ratio: auto;
