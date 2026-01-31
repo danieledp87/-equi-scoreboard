@@ -425,10 +425,9 @@ function computeFinishEta(totalDone, totalAll){
   if(!totalAll) return null;
   const remaining = Math.max(0, totalAll - totalDone);
   if(remaining === 0) return "Completata";
-  const intervalMs = state.finishAvgInterval;
-  if(!intervalMs || state.finishArrivals.length === 0) return null;
-  const lastTs = state.finishArrivals[state.finishArrivals.length-1];
-  const finishMs = lastTs + remaining * intervalMs;
+  // semplice stima: 2 minuti per binomio mancante
+  const avgMsPerHorse = 2 * 60 * 1000;
+  const finishMs = Date.now() + remaining * avgMsPerHorse;
   const dt = new Date(finishMs);
   const hh = String(dt.getHours()).padStart(2,"0");
   const mm = String(dt.getMinutes()).padStart(2,"0");
