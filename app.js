@@ -31,12 +31,12 @@ const state = {
   lastSnapshot: new Map(), // head_number -> time
   lastAnimKey: "",
   // ETA tracking
-  finishStartTime: null,
-  finishSamples: new Map(), // result id -> duration seconds (legacy)
-  finishAvg: null,
-  finishArrivals: [], // timestamps when new results arrive
-  finishAvgInterval: null,
+  finishStartTime: null,       // timestamp when first result of the class is seen
+  finishSamples: new Map(),    // legacy placeholder (not used)
+  finishArrivals: [],          // timestamps when new results arrive (Date.now)
+  finishAvgInterval: null,     // average milliseconds between arrivals
   finishClassId: null,
+  finishSeenIds: new Set(),    // ids of results already counted
   renderedIds: new Set(),
 };
 
@@ -368,48 +368,45 @@ function collectDurations(standings){
 }
 
 function trackArrivals(results){
-  let updated = false;
+  const now = Date.now();
+  let newArrivals = 0;
+
   for(const r of results){
     const rid = r.id || `${r.head_number||""}-${r.updated||""}`;
-    if(state.finishSamples.has(rid)) continue; // reuse map as seen marker
-    // mark seen to avoid double counting
-    state.finishSamples.set(rid, safeNum(r.time) || 0);
-    state.finishArrivals.push(Date.now());
-    updated = true;
+    if(state.finishSeenIds.has(rid)) continue;
+    state.finishSeenIds.add(rid);
+    state.finishArrivals.push(now);
+    newArrivals++;
+    if(!state.finishStartTime) state.finishStartTime = now;
   }
-  // keep last 50 arrivals
-  if(state.finishArrivals.length > 50){
-    state.finishArrivals = state.finishArrivals.slice(-50);
+
+  // keep last 100 arrivals to avoid unbounded growth
+  if(state.finishArrivals.length > 100){
+    state.finishArrivals = state.finishArrivals.slice(-100);
   }
-  if(updated && state.finishArrivals.length >= 4){
+
+  if(state.finishArrivals.length >= 2){
     const arr = state.finishArrivals;
     const intervals = [];
     for(let i=1;i<arr.length;i++){
       intervals.push(arr[i]-arr[i-1]);
     }
-    // keep last 10 intervals
-    const last = intervals.slice(-10);
-    const avgMs = last.reduce((a,b)=>a+b,0) / last.length;
+    const lastN = intervals.slice(-30); // smoother average
+    const avgMs = lastN.reduce((a,b)=>a+b,0) / lastN.length;
     state.finishAvgInterval = avgMs;
   }
+
+  return newArrivals > 0;
 }
 
 function computeFinishEta(totalDone, totalAll){
   if(!totalAll) return null;
   const remaining = Math.max(0, totalAll - totalDone);
   if(remaining === 0) return "Completata";
-  // use arrival interval avg if available else fallback to duration avg
   const intervalMs = state.finishAvgInterval;
-  const avgDurSec = state.finishAvg;
-  if(!intervalMs && !avgDurSec) return null;
-  const bufferMs = 45_000;
-  const nowTs = Date.now();
-  let finishMs;
-  if(intervalMs){
-    finishMs = nowTs + remaining * intervalMs + bufferMs;
-  }else{
-    finishMs = nowTs + remaining * avgDurSec * 1000 + bufferMs;
-  }
+  if(!intervalMs || state.finishArrivals.length === 0) return null;
+  const lastTs = state.finishArrivals[state.finishArrivals.length-1];
+  const finishMs = lastTs + remaining * intervalMs;
   const dt = new Date(finishMs);
   const hh = String(dt.getHours()).padStart(2,"0");
   const mm = String(dt.getMinutes()).padStart(2,"0");
@@ -766,6 +763,7 @@ if(state.mode === "sample"){
     state.finishSamples = new Map();
     state.finishArrivals = [];
     state.finishAvgInterval = null;
+    state.finishSeenIds = new Set();
     state.finishAvg = null;
     state.renderedIds = new Set();
   }
