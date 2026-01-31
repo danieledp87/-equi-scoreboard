@@ -64,7 +64,12 @@ class Handler(SimpleHTTPRequestHandler):
                 self.send_header("Content-Type", ct)
                 self.send_header("Cache-Control", "no-store")
                 self.end_headers()
-                self.wfile.write(data)
+                try:
+                    self.wfile.write(data)
+                except BrokenPipeError:
+                    # client closed the connection (common with rapid polling); just drop
+                    self.close_connection = True
+                    return
         except HTTPError as e:
             self.send_response(e.code)
             self.send_header("Content-Type", "text/plain; charset=utf-8")
