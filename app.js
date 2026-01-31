@@ -538,10 +538,15 @@ function resetPaging(pageCount, key){
   state.pageSwitchAt = Date.now() + state.firstPageMs;
 }
 
-function setStats(totalDone, totalAll){
+function setStats(totalDone, totalAll, standings){
   const totalEl = $("statTotal");
   totalEl.textContent = totalAll ? `${totalDone}/${totalAll}` : `${totalDone}/—`;
-  $("statAllowed").textContent = "—";
+  // best time so far
+  const times = (standings||[])
+    .map(r => safeNum(r.time))
+    .filter(t => Number.isFinite(t) && t > 0 && t < 1000);
+  const best = times.length ? Math.min(...times) : null;
+  $("statAllowed").textContent = best ? `${best.toFixed(2)} s` : "—";
   const etaEl = $("statEta");
   if(etaEl && !etaEl.classList.contains("etaPending")){
     etaEl.textContent = etaEl.textContent || "—";
@@ -671,7 +676,7 @@ function renderLive(standings, last, next, totalDone, totalAll, isLive, pageKey)
     $("nextHorse").textContent = "—";
   }
 
-  setStats(totalDone, totalAll);
+  setStats(totalDone, totalAll, standings);
 }
 
 function renderFinal(standings, totalDone, totalAll, pageKey){
@@ -726,7 +731,7 @@ function renderFinal(standings, totalDone, totalAll, pageKey){
   state.lastAnimKey = animKey;
   state.renderedIds = newSet;
 
-  setStats(totalDone, totalAll);
+  setStats(totalDone, totalAll, standings);
 }
 
 async function tick(){
