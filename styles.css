@@ -544,6 +544,9 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
 
 /* MOBILE RESPONSIVE */
 @media (max-width: 768px) {
+  body{
+    overflow:auto;
+  }
   .canvas {
     width: 100vw;
     height: 100vh;
@@ -586,11 +589,11 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
 
   /* order on mobile: LAST, CURRENT, NEXT, stats */
   .right { order: 1; width: 100%; height: auto; flex-direction: column; gap: 10px; }
-  .panel { order: 2; width: 100%; }
+  .panel { order: 2; width: 100%; min-height: 200px; background: rgba(8,14,28,.82); }
   .rightStats { order: 3; margin-top: 6px; }
 
-  .gridLive .panel { height: auto; min-height: 260px; }
-  .gridLive .rows { height: 100%; min-height: 200px; }
+  .gridLive .panel { height: auto; min-height: 220px; }
+  .gridLive .rows { height: auto; max-height: none; min-height: 180px; }
 
   .box { width: 100%; min-height: 120px; }
 
@@ -634,6 +637,14 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
     width: 32px;
     height: 22px;
     margin-right: 8px;
+  }
+
+  .panelHeader {
+    margin-top: 6px;
+  }
+
+  .rows .row{
+    padding: 12px 12px;
   }
 
   .statMini {
