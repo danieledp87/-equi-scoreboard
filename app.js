@@ -118,6 +118,17 @@ const COUNTRY_NAME_TO_CODE = {
   PORTUGAL:"POR", PORTUGAL:"POR"
 };
 
+function trimmedMean(values){
+  const arr = values.filter(Number.isFinite);
+  if(arr.length === 0) return null;
+  if(arr.length <= 4) return arr.reduce((a,b)=>a+b,0) / arr.length;
+  const sorted = arr.slice().sort((a,b)=>a-b);
+  const cut = Math.floor(sorted.length * 0.2); // drop 20% low/high
+  const trimmed = sorted.slice(cut, sorted.length - cut);
+  if(trimmed.length === 0) return sorted.reduce((a,b)=>a+b,0) / sorted.length;
+  return trimmed.reduce((a,b)=>a+b,0) / trimmed.length;
+}
+
 function flagDataUri(label){
   const txt = safeStr(label).trim().toUpperCase().slice(0,3) || "—";
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="56" viewBox="0 0 80 56">
@@ -368,21 +379,27 @@ function collectDurations(standings){
 }
 
 function trackArrivals(results){
-  const now = Date.now();
   let newArrivals = 0;
+  let lastTs = state.finishArrivals[state.finishArrivals.length-1] || 0;
 
   for(const r of results){
     const rid = r.id || `${r.head_number||""}-${r.updated||""}`;
     if(state.finishSeenIds.has(rid)) continue;
     state.finishSeenIds.add(rid);
-    state.finishArrivals.push(now);
+
+    // prefer server timestamp if present, fallback to now
+    const upd = Number(r.updated);
+    let ts = Number.isFinite(upd) && upd > 0 ? upd * 1000 : Date.now();
+    if(ts <= lastTs) ts = lastTs + 1; // ensure monotonic increasing
+    state.finishArrivals.push(ts);
+    lastTs = ts;
     newArrivals++;
-    if(!state.finishStartTime) state.finishStartTime = now;
+    if(!state.finishStartTime) state.finishStartTime = ts;
   }
 
-  // keep last 100 arrivals to avoid unbounded growth
-  if(state.finishArrivals.length > 100){
-    state.finishArrivals = state.finishArrivals.slice(-100);
+  // keep last 120 arrivals to avoid unbounded growth
+  if(state.finishArrivals.length > 120){
+    state.finishArrivals = state.finishArrivals.slice(-120);
   }
 
   if(state.finishArrivals.length >= 2){
@@ -391,8 +408,8 @@ function trackArrivals(results){
     for(let i=1;i<arr.length;i++){
       intervals.push(arr[i]-arr[i-1]);
     }
-    const lastN = intervals.slice(-30); // smoother average
-    const avgMs = lastN.reduce((a,b)=>a+b,0) / lastN.length;
+    const lastN = intervals.slice(-40); // smoother average
+    const avgMs = trimmedMean(lastN);
     state.finishAvgInterval = avgMs;
   }
 
