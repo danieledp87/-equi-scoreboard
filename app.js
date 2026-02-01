@@ -439,7 +439,7 @@ function trackArrivals(results){
 function computeFinishEta(totalDone, totalAll){
   if(!totalAll) return null;
   const remaining = Math.max(0, totalAll - totalDone);
-  if(remaining === 0) return "Completata";
+  if(remaining === 0) return "FINISH";
   // semplice stima: 2 minuti per binomio mancante
   const avgMsPerHorse = 2 * 60 * 1000;
   const finishMs = Date.now() + remaining * avgMsPerHorse;

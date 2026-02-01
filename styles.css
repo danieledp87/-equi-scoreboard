@@ -407,7 +407,7 @@ body.setup-open #bg{opacity:0.35;}
 }
 
 #statEta{
-  font-size:clamp(14px,1.6vw,20px);
+  font-size:clamp(14px,1.8vw,22px);
   line-height:1.2;
   word-break:break-word;
   white-space:normal;
