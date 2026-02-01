@@ -976,10 +976,9 @@ showSetup();
   });
 
   function forceReload(){
-    // force a full reload like Cmd/Ctrl+R (with cache-busting rnd param)
-    const url = new URL(window.location.href);
-    url.searchParams.set("rnd", Date.now().toString());
-    window.location.href = url.toString();
+    // force a full reload (like Cmd/Ctrl+R) with cache-busting param
+    const url = `${window.location.origin}${window.location.pathname}?rnd=${Date.now()}`;
+    window.location.assign(url);
   }
 
   // floating button to reopen setup
