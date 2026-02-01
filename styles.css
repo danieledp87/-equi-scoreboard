@@ -39,7 +39,7 @@ body.setup-open #bg{opacity:0.35;}
     /* mettiamo prima l'immagine per tenerla sopra i gradienti */
     url("./assets/bg_2.png") center/cover no-repeat,
     radial-gradient(circle at 60% 45%, rgba(0,190,255,.10), transparent 55%),
-    linear-gradient(180deg, rgba(5,10,22,1), rgba(2,4,12,1));
+    linear-gradient(180deg, rgba(5,10,22,0.92), rgba(2,4,12,0.92));
 
   filter:saturate(1.05);
 }
@@ -404,6 +404,13 @@ body.setup-open #bg{opacity:0.35;}
   font-weight:950;
   text-align:center;
   line-height:1.1
+}
+
+#statEta{
+  font-size:clamp(14px,1.6vw,20px);
+  line-height:1.2;
+  word-break:break-word;
+  white-space:normal;
 }
 
 .etaPending{
