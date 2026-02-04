@@ -234,7 +234,21 @@ body.setup-open #bg{opacity:0.35;}
   position:relative;
 }
 
-.row.last::before{display:block;}
+.row.last::before{
+  content:"LAST";
+  position:absolute;
+  left:4px;
+  top:50%;
+  transform:translateY(-50%) rotate(-90deg);
+  font-size:12px;
+  letter-spacing:1.6px;
+  font-weight:900;
+  color:rgba(0,0,0,.55);
+  background:rgba(255,220,120,.95);
+  padding:4px 8px;
+  border-radius:6px;
+  box-shadow:0 1px 3px rgba(0,0,0,.30);
+}
 
 .rowSlideIn{
   animation:rowSlideIn 1.4s cubic-bezier(.25,.85,.2,1) forwards;
