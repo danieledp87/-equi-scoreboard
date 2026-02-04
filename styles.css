@@ -352,11 +352,15 @@ body.setup-open #bg{opacity:0.35;}
 
 .kv{margin-top:10px;display:flex;justify-content:space-between;font-weight:950}
 .kv3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px 10px;align-items:flex-start}
-.currentBox{min-height:190px;}
-.currentBox .kv{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;align-items:flex-start;margin-top:12px}
-.currentLabel{font-size:clamp(16px,1.4vw,22px);font-weight:950;letter-spacing:.2px}
+.currentBox{min-height:210px;}
+.currentBox .bigLine{font-size:clamp(20px,1.8vw,30px);}
+.currentBox .midLine{font-size:clamp(16px,1.6vw,24px);}
+.currentBox .kv{margin-top:14px;}
+.currentKv{display:flex;flex-direction:column;gap:10px;}
+.currentKv .metric{display:flex;align-items:baseline;gap:10px;}
+.currentLabel{font-size:clamp(26px,2.8vw,40px);font-weight:950;letter-spacing:.2px;line-height:1;}
 .currentBox .livePenalty,
-.currentBox .liveState{font-size:clamp(16px,1.4vw,22px);font-weight:950}
+.currentBox .liveState{font-size:clamp(26px,2.8vw,40px);font-weight:950;line-height:1.05;}
 
 .gridFinal{height:100%;display:block}
 .column{height:100%}
