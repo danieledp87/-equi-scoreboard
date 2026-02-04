@@ -37,6 +37,7 @@ const state = {
   liveCurrentAt: 0,
   liveErrorAt: 0,
   livePollHandle: null,
+  liveClockHandle: null,
   // ETA tracking
   finishStartTime: null,       // timestamp when first result of the class is seen
   finishSamples: new Map(),    // legacy placeholder (not used)
@@ -499,6 +500,28 @@ async function pollLiveCurrent(){
   }finally{
     clearTimeout(to);
   }
+}
+
+function startLiveClock(){
+  if(state.liveClockHandle) return;
+  state.liveClockHandle = setInterval(() => {
+    const live = state.liveCurrent;
+    const nowMs = Date.now();
+    const nowS = nowMs / 1000;
+    const fetchStale = (nowMs - (state.liveCurrentAt || 0)) > state.liveGraceMs;
+    const errorFresh = state.liveErrorAt && (nowMs - state.liveErrorAt) < state.liveGraceMs;
+    const hbStale = !live || (live.last_heartbeat && (nowS - live.last_heartbeat) > (HEARTBEAT_TTL || 60));
+    const available = live && live.available && !hbStale && !fetchStale && !errorFresh;
+    if(!available) return;
+    if(live.state === "running"){
+      const timeStr = fmtLiveElapsedSeconds(live.start_time, nowS);
+      const el = $("currentTime");
+      if(el){
+        el.textContent = timeStr;
+        setStateClass(el, "running");
+      }
+    }
+  }, 250);
 }
 
 function trackArrivals(results){
@@ -1086,6 +1109,7 @@ showSetup();
     if(state.livePollHandle) clearInterval(state.livePollHandle);
     state.livePollHandle = setInterval(pollLiveCurrent, state.livePollMs);
     pollLiveCurrent(); // fire once immediately
+    startLiveClock();  // lightweight local chrono refresher
   });
 
   function forceReload(){
