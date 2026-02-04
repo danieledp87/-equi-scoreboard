@@ -130,7 +130,7 @@ function renderCurrentBox(live, starting){
 
   const timeStr = available
     ? (live.state === "running"
-        ? fmtLiveTime(nowS - (live.start_time || nowS))
+        ? fmtLiveElapsedSeconds(live.start_time, nowS)
         : fmtLiveTime(live.finish_time))
     : "—";
   $("currentTime").textContent = timeStr;
@@ -446,6 +446,11 @@ function fmtLiveTime(val){
   const n = safeNum(val);
   if(n === null) return (val ? String(val) : "—");
   return `${n.toFixed(2)} s`;
+}
+function fmtLiveElapsedSeconds(start, nowS){
+  const base = safeNum(start) ?? nowS;
+  const s = Math.max(0, Math.floor((nowS) - base));
+  return `${s}s`;
 }
 
 // ---- Finish ETA helpers ----
