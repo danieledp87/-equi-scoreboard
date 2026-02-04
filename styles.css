@@ -234,7 +234,7 @@ body.setup-open #bg{opacity:0.35;}
   position:relative;
 }
 
-.row.last::before{display:none;}
+.row.last::before{display:block;}
 
 .rowSlideIn{
   animation:rowSlideIn 1.4s cubic-bezier(.25,.85,.2,1) forwards;
@@ -641,6 +641,8 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
     gap: 6px;
     padding: 10px 10px;
   }
+
+  .row.last::before{display:none;}
 
   .pos {
     display: inline;
