@@ -13,6 +13,7 @@ const EQUI_SAMPLE = {
   resultsUrl: `${API_BASE}/classes/322284/results.json`,
   startingUrl: `${API_BASE}/classes/322284/startinglist.json`,
 };
+const HEARTBEAT_TTL = 60;
 
 const state = {
   competitionId: "14277",
@@ -28,8 +29,14 @@ const state = {
   firstPageMs: 20000,
   nextPagesMs: 10000,
   refreshMs: 2000,
+  livePollMs: 500,
+  liveGraceMs: 3000,
   lastSnapshot: new Map(), // head_number -> time
   lastAnimKey: "",
+  liveCurrent: null,
+  liveCurrentAt: 0,
+  liveErrorAt: 0,
+  livePollHandle: null,
   // ETA tracking
   finishStartTime: null,       // timestamp when first result of the class is seen
   finishSamples: new Map(),    // legacy placeholder (not used)
@@ -67,6 +74,82 @@ function fmtTime(val){
   const n = safeNum(val);
   if(n === null) return "";
   return `${n.toFixed(2)} s`;
+}
+function setStateClass(el, state){
+  if(!el) return;
+  el.className = "liveState";
+  const s = (state || "unknown").toLowerCase();
+  el.classList.add(`state-${s}`);
+}
+function setPenaltyClass(el, val){
+  if(!el) return;
+  el.className = "livePenalty";
+  const s = String(val ?? "").toLowerCase();
+  if(["elim","rit","np"].includes(s)){
+    el.classList.add("penalty-flag");
+  }else{
+    const n = Number(val);
+    if(Number.isFinite(n) && n > 0) el.classList.add("penalty-nonzero");
+  }
+}
+
+function renderLiveBoxes(live, starting){
+  const nowMs = Date.now();
+  const nowS = nowMs / 1000;
+  const fetchStale = (nowMs - (state.liveCurrentAt || 0)) > state.liveGraceMs;
+  const errorStale = state.liveErrorAt && (nowMs - state.liveErrorAt) < state.liveGraceMs;
+  const hbStale = !live || (live.last_heartbeat && (nowS - live.last_heartbeat) > (HEARTBEAT_TTL || 60));
+  const available = live && live.available && !hbStale && !fetchStale && !errorStale;
+  const fallbackMsg = available ? null : "Dati live non disponibili";
+
+  const setRiderHorse = (bib, riderEl, horseEl, flagEl, bibEl) => {
+    const entry = findStartingByBib(starting, bib);
+    if(entry){
+      riderEl.textContent = fmtRider(entry.rider);
+      horseEl.textContent = entry.horse?.full_name || "—";
+      const nat = entry.rider?.nationality || entry.rider?.country_code || entry.nationality || entry.country_code;
+      const src = flagSrc(nat);
+      if(flagEl){ if(src){ flagEl.src = src; flagEl.style.display=""; } else { flagEl.removeAttribute("src"); flagEl.style.display="none"; } }
+    }else{
+      riderEl.textContent = fallbackMsg || "—";
+      horseEl.textContent = fallbackMsg ? "" : "—";
+      if(flagEl){ flagEl.removeAttribute("src"); flagEl.style.display="none"; }
+    }
+    if(bibEl) bibEl.textContent = bib ? `(${bib})` : "";
+  };
+
+  const bib = available ? live.current_bib : null;
+  const penalty = available ? fmtPenaltyLive(live.penalty) : "—";
+  const stateLabel = available ? (live.state || "idle").toUpperCase() : "N/D";
+
+  // CURRENT box
+  setRiderHorse(bib, $("currentRider"), $("currentHorse"), $("currentFlag"), $("currentBib"));
+  $("currentRank").textContent = available && live.rank ? `Rank ${live.rank}` : "—";
+  $("currentScore").textContent = penalty;
+  setPenaltyClass($("currentScore"), penalty);
+
+  const timeStr = available
+    ? (live.state === "running"
+        ? fmtLiveTime(nowS - (live.start_time || nowS))
+        : fmtLiveTime(live.finish_time))
+    : "—";
+  $("currentTime").textContent = timeStr;
+  setStateClass($("currentTime"), live?.state);
+
+  // NEXT box (live status)
+  setRiderHorse(bib, $("nextRider"), $("nextHorse"), $("nextFlag"), $("nextBib"));
+  $("nextOrder").textContent = bib ? `#${bib}` : "—";
+  $("nextPenalty").textContent = penalty;
+  setPenaltyClass($("nextPenalty"), penalty);
+
+  const nextTime = available
+    ? (live.state === "running"
+        ? fmtLiveTime(nowS - (live.start_time || nowS))
+        : fmtLiveTime(live.finish_time))
+    : "—";
+  $("nextTime").textContent = nextTime;
+  $("nextState").textContent = stateLabel;
+  setStateClass($("nextState"), live?.state);
 }
 
 function isPointsClass(meta, standings){
@@ -362,6 +445,23 @@ function computeNext(starting, results){
     .sort((a,b)=>Number(a.entry_order||0)-Number(b.entry_order||0))
     .find(e => !finished.has(e.head_number) && e.not_in_competition === false) || null;
 }
+function findStartingByBib(starting, bib){
+  if(!bib) return null;
+  return (starting||[]).find(s => String(s.head_number) === String(bib)) || null;
+}
+function fmtPenaltyLive(val){
+  if(val === null || val === undefined) return "0";
+  const s = String(val).trim();
+  if(!s) return "0";
+  if(["elim","rit","np"].includes(s.toLowerCase())) return s.toUpperCase();
+  const n = Number(s);
+  return Number.isFinite(n) ? n.toString() : s;
+}
+function fmtLiveTime(val){
+  const n = safeNum(val);
+  if(n === null) return (val ? String(val) : "—");
+  return `${n.toFixed(2)} s`;
+}
 
 // ---- Finish ETA helpers ----
 function detectStartTime(pick){
@@ -390,6 +490,24 @@ function collectDurations(standings){
   if(vals.length >= 3){
     const sum = vals.reduce((a,b)=>a+b,0);
     state.finishAvg = sum / vals.length;
+  }
+}
+
+async function pollLiveCurrent(){
+  if(!state.competitionId || !state.arenaName) return;
+  const controller = new AbortController();
+  const to = setTimeout(()=>controller.abort(), 800);
+  try{
+    const url = `/live/current?competition_id=${encodeURIComponent(state.competitionId)}&arena_name=${encodeURIComponent(state.arenaName)}`;
+    const resp = await fetch(url, { signal: controller.signal, cache:"no-store" });
+    const data = await resp.json();
+    state.liveCurrent = data;
+    state.liveCurrentAt = Date.now();
+    state.liveErrorAt = 0;
+  }catch(e){
+    state.liveErrorAt = Date.now();
+  }finally{
+    clearTimeout(to);
   }
 }
 
@@ -699,6 +817,7 @@ function renderLive(standings, last, next, totalDone, totalAll, isLive, pageKey)
     $("nextHorse").textContent = "—";
   }
 
+  renderLiveBoxes(state.liveCurrent, state._startingList);
   setStats(totalDone, totalAll, standings);
 }
 
@@ -820,6 +939,7 @@ if(state.mode === "sample"){
   state._currentClassMeta = pick.classMeta;
   state._currentStandings = standings;
   const starting = (startJson.starting_lists || []);
+  state._startingList = starting;
   const totalAll = startJson.starting_list_count || pick.classMeta.starting_list_count || starting.length || null;
   const totalDone = standings.filter(r => safeStr(r.time).trim() !== "").length;
 
@@ -973,6 +1093,9 @@ showSetup();
     hideSetup();
     await tick();
     setInterval(tick, state.refreshMs);
+    if(state.livePollHandle) clearInterval(state.livePollHandle);
+    state.livePollHandle = setInterval(pollLiveCurrent, state.livePollMs);
+    pollLiveCurrent(); // fire once immediately
   });
 
   function forceReload(){

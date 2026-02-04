@@ -351,6 +351,7 @@ body.setup-open #bg{opacity:0.35;}
 }
 
 .kv{margin-top:10px;display:flex;justify-content:space-between;font-weight:950}
+.kv3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px 10px;align-items:flex-start}
 
 .gridFinal{height:100%;display:block}
 .column{height:100%}
@@ -371,6 +372,13 @@ body.setup-open #bg{opacity:0.35;}
 .bigLine{display:flex;align-items:center;min-width:0}
 .bigLine span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bib{margin-left:10px;font-size:12px;color:var(--muted);font-weight:900;flex:0 0 auto}
+
+.livePenalty.penalty-nonzero{color:#ffb347}
+.livePenalty.penalty-flag{color:#ff6b6b;font-weight:950}
+.liveState{font-weight:900}
+.state-running{color:#5be37d}
+.state-finished{color:#7dd0ff}
+.state-idle{color:var(--muted)}
 
 /* stats under NEXT */
 .rightStats{margin-top:auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
