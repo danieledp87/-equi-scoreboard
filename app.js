@@ -761,7 +761,11 @@ function renderLive(standings, last, next, totalDone, totalAll, isLive, pageKey)
   pageItems.forEach((r,i) => {
     const key = rowKey(r);
     newSet.add(key);
-    const el = buildRow(r, isLive && last && r.id === last.id);
+    const isLastRow = isLive && last && (
+      (r.id && last.id && r.id === last.id) ||
+      (r.head_number && last.head_number && String(r.head_number) === String(last.head_number))
+    );
+    const el = buildRow(r, isLastRow);
     const fresh = !prevSet.has(key);
     if(shouldAnimate || fresh){
       el.classList.add("rowSlideIn");
