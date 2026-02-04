@@ -364,7 +364,7 @@ body.setup-open #bg{opacity:0.35;}
 .currentBox .kv{margin-top:16px;}
 .currentKv{display:flex;flex-direction:column;gap:10px;}
 .currentKv .metric{display:flex;align-items:baseline;gap:10px;}
-.currentLabel{font-size:clamp(24px,2.1vw,34px);font-weight:950;letter-spacing:.2px;line-height:1;}
+.currentLabel{font-size:clamp(26px,2.4vw,38px);font-weight:950;letter-spacing:.2px;line-height:1;}
 .currentBox .livePenalty,
 .currentBox .liveState{font-size:clamp(24px,2.1vw,34px);font-weight:950;line-height:1.05;}
 
@@ -432,7 +432,7 @@ body.setup-open #bg{opacity:0.35;}
 }
 
 #statEta{
-  font-size:clamp(14px,1.8vw,22px);
+  font-size:clamp(24px,2.1vw,36px);
   line-height:1.2;
   word-break:break-word;
   white-space:normal;
