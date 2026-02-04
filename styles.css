@@ -364,9 +364,11 @@ body.setup-open #bg{opacity:0.35;}
 .currentBox .kv{margin-top:16px;}
 .currentKv{display:flex;flex-direction:column;gap:10px;}
 .currentKv .metric{display:flex;align-items:baseline;gap:10px;}
-.currentLabel{font-size:clamp(26px,2.8vw,40px);font-weight:950;letter-spacing:.2px;line-height:1;}
+.currentLabel{font-size:clamp(24px,2.1vw,34px);font-weight:950;letter-spacing:.2px;line-height:1;}
 .currentBox .livePenalty,
-.currentBox .liveState{font-size:clamp(26px,2.8vw,40px);font-weight:950;line-height:1.05;}
+.currentBox .liveState{font-size:clamp(24px,2.1vw,34px);font-weight:950;line-height:1.05;}
+
+#currentRank{color:#ffb347;}
 
 .gridFinal{height:100%;display:block}
 .column{height:100%}
