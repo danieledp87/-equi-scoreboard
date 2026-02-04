@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Equi Scoreboard</title>
-  <link rel="stylesheet" href="./styles.css?v=20260204b" />
+  <link rel="stylesheet" href="./styles.css?v=20260204c" />
 </head>
 <body>
   <div id="bg"></div>
@@ -58,14 +58,14 @@
             </div>
           </div>
 
-          <div class="box">
+          <div class="box currentBox">
             <div class="boxHeader"><span>CURRENT</span><span id="currentRank">—</span></div>
             <div class="boxBody">
               <div class="bigLine"><img class="flagIcon" id="currentFlag" alt="" /><span id="currentRider">—</span><span class="bib" id="currentBib"></span></div>
               <div class="midLine" id="currentHorse">—</div>
               <div class="kv">
-                <div><span class="small">Penalità</span> <span id="currentScore">—</span></div>
-                <div><span class="small">Tempo / Stato</span> <span id="currentTime">—</span></div>
+                <div><span class="currentLabel">Pen:</span> <span class="livePenalty" id="currentScore">—</span></div>
+                <div><span class="currentLabel">Time:</span> <span class="liveState" id="currentTime">—</span></div>
               </div>
             </div>
           </div>
@@ -141,6 +141,6 @@
     </div>
   </div>
 
-  <script src="./app.js?v=20260204b"></script>
+  <script src="./app.js?v=20260204c"></script>
 </body>
 </html>
