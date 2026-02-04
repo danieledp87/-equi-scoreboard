@@ -93,7 +93,7 @@ function setPenaltyClass(el, val){
   }
 }
 
-function renderLiveBoxes(live, starting){
+function renderCurrentBox(live, starting){
   const nowMs = Date.now();
   const nowS = nowMs / 1000;
   const fetchStale = (nowMs - (state.liveCurrentAt || 0)) > state.liveGraceMs;
@@ -135,21 +135,6 @@ function renderLiveBoxes(live, starting){
     : "—";
   $("currentTime").textContent = timeStr;
   setStateClass($("currentTime"), live?.state);
-
-  // NEXT box (live status)
-  setRiderHorse(bib, $("nextRider"), $("nextHorse"), $("nextFlag"), $("nextBib"));
-  $("nextOrder").textContent = bib ? `#${bib}` : "—";
-  $("nextPenalty").textContent = penalty;
-  setPenaltyClass($("nextPenalty"), penalty);
-
-  const nextTime = available
-    ? (live.state === "running"
-        ? fmtLiveTime(nowS - (live.start_time || nowS))
-        : fmtLiveTime(live.finish_time))
-    : "—";
-  $("nextTime").textContent = nextTime;
-  $("nextState").textContent = stateLabel;
-  setStateClass($("nextState"), live?.state);
 }
 
 function isPointsClass(meta, standings){
@@ -817,7 +802,7 @@ function renderLive(standings, last, next, totalDone, totalAll, isLive, pageKey)
     $("nextHorse").textContent = "—";
   }
 
-  renderLiveBoxes(state.liveCurrent, state._startingList);
+  renderCurrentBox(state.liveCurrent, state._startingList);
   setStats(totalDone, totalAll, standings);
 }
 
