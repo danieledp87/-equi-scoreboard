@@ -79,6 +79,14 @@ function applyCanvasScale(){
   if(!canvas) return;
   const w = window.innerWidth;
   const h = window.innerHeight;
+  // Mobile portrait: don't downscale, let responsive CSS handle it
+  if(w < 900 && h > w){
+    canvas.style.setProperty("--canvas-scale", 1);
+    canvas.style.position = "relative";
+    canvas.style.left = "0";
+    canvas.style.top = "0";
+    return;
+  }
   const scale = Math.min(w / BASE_W, h / BASE_H);
   canvas.style.setProperty("--canvas-scale", scale);
   const left = Math.max(0, (w - BASE_W * scale) / 2);
