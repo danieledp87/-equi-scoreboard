@@ -12,19 +12,26 @@
 
   <div class="canvas">
     <div class="topbar">
-      <div class="title">
-        <div class="classNo" id="classNo">06</div>
-        <div style="min-width:0">
-          <div class="className" id="className">—</div>
-          <div class="subtitle" id="subtitle">—</div>
+      <div class="competitionInfo">
+        <div class="trapezoid">
+          <div class="trapHeader">CURRENT COMPETITION</div>
+          <div class="trapContent">
+            <span class="classNo" id="classNo">H110</span>
+            <span class="className" id="className">AGAINST THE CLOCK</span>
+          </div>
         </div>
       </div>
-      <div class="badges">
-        <div class="badge" id="modeBadge">
-          <span class="led" id="liveLed" aria-hidden="true"></span>
-          <span id="modeBadgeText">—</span>
+      <div class="timeInfo">
+        <div class="trapezoid">
+          <div class="timeRow">
+            <span class="timeLabel">TIME</span>
+            <span class="timeValue" id="clock">11:25</span>
+          </div>
+          <div class="timeRow">
+            <span class="timeLabel">Ca. FINISH</span>
+            <span class="timeValue" id="finishTime">12:53</span>
+          </div>
         </div>
-        <div class="badge" id="clock">--:--:--</div>
         <button id="openSetup" class="badge setupToggle" type="button">Setup</button>
       </div>
     </div>
@@ -32,50 +39,63 @@
     <div class="main">
       <!-- LIVE layout -->
       <div class="gridLive" id="layoutLive">
-        <div class="panel">
-          <div class="panelHeader">CURRENT COMPETITION</div>
-          <div class="rows" id="rowsLive"></div>
+        <div class="leftPanel">
+          <div class="panel">
+            <div class="panelHeader">RANKING</div>
+            <div class="rows" id="rowsLive"></div>
+          </div>
         </div>
 
-        <div class="right">
+        <div class="rightPanel">
           <div class="box sideBox lastBox">
-            <div class="boxHeader"><span>LAST</span><span id="lastRank">—</span></div>
+            <div class="boxHeader"><span>LAST</span><span id="lastRank">Rank 2</span></div>
             <div class="boxBody">
-              <div class="bigLine"><img class="flagIcon" id="lastFlag" alt="" /><span id="lastRider">—</span><span class="bib" id="lastBib"></span></div>
+              <div class="bigLine"><img class="flagIcon" id="lastFlag" alt="" /><span id="lastRider">—</span></div>
               <div class="midLine" id="lastHorse">—</div>
-              <div class="kv">
-                <div><span class="small">Score</span> <span id="lastScore">—</span></div>
-                <div><span class="small">Time</span> <span id="lastTime">—</span></div>
+              <div class="scoreRow">
+                <span><span class="scoreLabel">Pt.</span> <span id="lastScore">0</span></span>
+                <span id="lastTime">45.81 sec</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="box sideBox currentBox">
+            <div class="boxHeader"><span>CURRENT</span><span id="currentCompetitor">19. Competitor</span></div>
+            <div class="boxBody">
+              <div class="bigLine"><img class="flagIcon" id="currentFlag" alt="" /><span id="currentRider">—</span></div>
+              <div class="midLine" id="currentHorse">—</div>
+              <div class="currentMetrics">
+                <div class="bigTime liveState" id="currentTime">43.22</div>
+                <div class="currentPenalty">
+                  <span class="penLabel">Pt.</span>
+                  <span class="livePenalty" id="currentScore">0</span>
+                </div>
               </div>
             </div>
           </div>
 
           <div class="box sideBox nextBox">
-            <div class="boxHeader"><span>NEXT</span><span id="nextOrder">—</span></div>
+            <div class="boxHeader"><span>NEXT</span></div>
             <div class="boxBody">
-              <div class="bigLine"><img class="flagIcon" id="nextFlag" alt="" /><span id="nextRider">—</span><span class="bib" id="nextBib"></span></div>
+              <div class="bigLine"><img class="flagIcon" id="nextFlag" alt="" /><span id="nextRider">—</span></div>
               <div class="midLine" id="nextHorse">—</div>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div class="box sideBox currentBox">
-            <div class="boxHeader"><span>CURRENT</span><span id="currentRank">—</span></div>
-            <div class="boxBody">
-              <div class="bigLine"><img class="flagIcon" id="currentFlag" alt="" /><span id="currentRider">—</span><span class="bib" id="currentBib"></span></div>
-              <div class="midLine" id="currentHorse">—</div>
-              <div class="kv currentKv">
-                <div class="metric"><span class="currentLabel">Pen:</span> <span class="livePenalty" id="currentScore">—</span></div>
-                <div class="metric"><span class="currentLabel">Time:</span> <span class="liveState" id="currentTime">—</span></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="rightStats" id="rightStats">
-            <div class="statMini total"><div class="label">TOTAL</div><div class="value" id="statTotal">—</div></div>
-            <div class="statMini"><div class="label">TIME TO<br/>BEAT</div><div class="value" id="statAllowed">—</div></div>
-            <div class="statMini"><div class="label">provisional<br/>FINISH</div><div class="value" id="statEta">—</div></div>
-          </div>
-
+      <div class="bottomStats" id="bottomStats">
+        <div class="statBox total">
+          <div class="statLabel">TOTAL</div>
+          <div class="statValue" id="statTotal">18/42</div>
+        </div>
+        <div class="statBox">
+          <div class="statLabel">ALLOWED</div>
+          <div class="statValue" id="statAllowed">60s</div>
+        </div>
+        <div class="statBox">
+          <div class="statLabel">BEST</div>
+          <div class="statValue" id="statBest">45.46</div>
         </div>
       </div>
 

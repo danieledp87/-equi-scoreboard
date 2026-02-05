@@ -165,14 +165,21 @@ function renderCurrentBox(live, starting){
 
   const bib = available ? live.current_bib : (state.lastFinish?.bib || null);
   const penalty = available ? fmtPenaltyLive(live.penalty) : (state.lastFinish?.penalty ?? "—");
-  const stateLabel = available ? (live.state || "idle").toUpperCase() : "N/D";
 
   // CURRENT box
-  setRiderHorse(bib, $("currentRider"), $("currentHorse"), $("currentFlag"), $("currentBib"));
-  const rankVal = (available && live && live.rank != null)
-    ? live.rank
-    : (state.lastFinish?.rank ?? null);
-  $("currentRank").textContent = rankVal != null ? `Rank ${rankVal}` : "—";
+  setRiderHorse(bib, $("currentRider"), $("currentHorse"), $("currentFlag"), null);
+
+  // Update competitor number header
+  const competitorEl = $("currentCompetitor");
+  if(competitorEl){
+    const entry = findStartingByBib(starting, bib);
+    if(entry && entry.entry_order){
+      competitorEl.textContent = `${entry.entry_order}. Competitor`;
+    }else{
+      competitorEl.textContent = "—";
+    }
+  }
+
   $("currentScore").textContent = penalty;
   setPenaltyClass($("currentScore"), penalty);
 
@@ -185,13 +192,14 @@ function renderCurrentBox(live, starting){
       timeStr = "—";
       setStateClass($("currentTime"), "idle");
     }else if(phaseWindowActive()){
-      timeStr = `${t.toFixed(2)} s`; // show centesimi durante la finestra di fase
+      timeStr = t.toFixed(2); // show centesimi durante la finestra di fase
     }else{
-      timeStr = `${Math.floor(t)} s`; // solo secondi durante il running normale
+      timeStr = Math.floor(t).toString(); // solo secondi durante il running normale
     }
   }else{
     const fTime = live.finish_time ?? state.lastFinish?.time;
-    timeStr = fmtLiveTime(fTime);
+    const num = safeNum(fTime);
+    timeStr = num !== null ? num.toFixed(2) : "—";
   }
   $("currentTime").textContent = timeStr;
   setStateClass($("currentTime"), live?.state);
@@ -445,6 +453,7 @@ function pickClassForArena(classes, arenaName){
 function setBadge(mode){
   const b = $("modeBadge");
   const t = $("modeBadgeText");
+  if(!b) return; // Badge not present in current layout
   if(mode==="live"){
     b.className = "badge live";
     if(t) t.textContent = "LIVE";
@@ -455,10 +464,13 @@ function setBadge(mode){
 }
 
 function renderHeader(meta, mode){
-  const no = meta?.fise_class_id || meta?.id || "--";
-  $("classNo").textContent = pad2(no).slice(-2);
-  $("className").textContent = meta?.class_name || "—";
-  $("subtitle").textContent = meta?.arena_name ? `Arena: ${meta.arena_name}` : "—";
+  // Extract class code from name (e.g., "H110" from "H110 AGAINST THE CLOCK")
+  const className = meta?.class_name || "—";
+  const classCode = className.match(/^([A-Z]\d+)/)?.[1] || "—";
+  const restOfName = className.replace(/^[A-Z]\d+\s*/, "") || className;
+
+  $("classNo").textContent = classCode;
+  $("className").textContent = restOfName;
   setBadge(mode);
 }
 
@@ -934,19 +946,24 @@ function resetPaging(pageCount, key){
 function setStats(totalDone, totalAll, standings){
   const totalEl = $("statTotal");
   totalEl.textContent = totalAll ? `${totalDone}/${totalAll}` : `${totalDone}/—`;
-  // time to beat = tempo del leader (rank 1) che non sia F.C.
+
+  // Best time = tempo del leader (rank 1) che non sia F.C.
   const leader = (standings||[])
     .filter(r => !isOutOfCompetition(r) && !isInvalidRank(r) && Number.isFinite(safeNum(r.time)) && safeNum(r.time) > 0 && safeNum(r.time) < 1000)
     .sort((a,b)=> rankingValue(a) - rankingValue(b))[0];
   const best = leader ? safeNum(leader.time) : null;
-  $("statAllowed").textContent = best ? `${best.toFixed(2)} s` : "—";
-  const etaEl = $("statEta");
-  if(etaEl && !etaEl.classList.contains("etaPending")){
-    etaEl.textContent = etaEl.textContent || "—";
+  const bestEl = $("statBest");
+  if(bestEl) bestEl.textContent = best ? `${best.toFixed(2)}` : "—";
+
+  // Allowed time (from class metadata)
+  const allowedEl = $("statAllowed");
+  if(allowedEl){
+    const allowed = state._currentClassMeta?.time_allowed;
+    allowedEl.textContent = allowed ? `${allowed}s` : "60s";
   }
 
   const pct = (totalAll && totalAll>0) ? Math.max(0, Math.min(100, (totalDone/totalAll)*100)) : 0;
-  const box = totalEl?.parentElement; // statMini
+  const box = totalEl?.parentElement; // statBox
   if(box){
     box.style.setProperty("--p", `${pct}%`);
   }
@@ -1025,15 +1042,14 @@ function renderLive(standings, last, next, totalDone, totalAll, isLive, pageKey)
   state.lastAnimKey = animKey;
 
   if(isLive && last){
-    $("lastRank").textContent = `Rank ${last.ranking_position_explained || last.ranking_position || "—"}`;
+    const rankPos = last.ranking_position_explained || last.ranking_position || "—";
+    $("lastRank").textContent = `Rank ${rankPos}`;
     $("lastRider").textContent = fmtRider(last.rider);
-    $("lastBib").textContent = last.head_number ? `(${last.head_number})` : "";
     const lf = $("lastFlag");
     const lNat = last.rider?.nationality || last.rider?.country_code || last.nationality || last.country_code;
     const lsrc = flagSrc(lNat);
     if(lf){ if(lsrc){ lf.src = lsrc; lf.style.display = ""; } else { lf.removeAttribute("src"); lf.style.display = "none"; } }
     $("lastHorse").textContent = last.horse?.full_name || "—";
-    const isPts = isPointsClass(state._currentClassMeta, state._currentStandings);
     const posLabel = safeStr(last.ranking_position_explained || last.ranking_position || "");
     const upperPos = posLabel.toUpperCase();
     const isFC = upperPos.includes("F.C");
@@ -1041,42 +1057,36 @@ function renderLive(standings, last, next, totalDone, totalAll, isLive, pageKey)
     const isRit = upperPos.includes("RIT");
     const isNP = upperPos.includes("N.P");
     if(isFC){
-      $("lastScore").textContent = "";
+      $("lastScore").textContent = "0";
       $("lastTime").textContent = "";
     }else if(isElim || isRit || isNP){
       const tag = isElim ? "Elim." : isRit ? "Rit." : "N.P.";
       $("lastScore").textContent = tag;
       $("lastTime").textContent = "";
     }else{
-      $("lastScore").textContent = isPts
-        ? (safeStr(last.points).trim() ? `${safeStr(last.points).trim()} pts` : "—")
-        : (safeStr(last.faults).trim() ? safeStr(last.faults).trim() : "—");
-      const tstr = fmtTime(last.time);
-      $("lastTime").textContent = tstr || "—";
+      const faults = safeStr(last.faults).trim() || safeStr(last.points).trim() || "0";
+      $("lastScore").textContent = faults;
+      const tNum = safeNum(last.time);
+      $("lastTime").textContent = tNum !== null ? `${tNum.toFixed(2)} sec` : "—";
     }
   }else{
     $("lastRank").textContent = "—";
     $("lastRider").textContent = "—";
-    $("lastBib").textContent = "";
     const lf = $("lastFlag"); if(lf){ lf.removeAttribute("src"); lf.style.display="none"; }
     $("lastHorse").textContent = "—";
-    $("lastScore").textContent = "—";
+    $("lastScore").textContent = "0";
     $("lastTime").textContent = "—";
   }
 
   if(isLive && next){
-    $("nextOrder").textContent = `#${next.entry_order}`;
     $("nextRider").textContent = fmtRider(next.rider);
-    $("nextBib").textContent = next.head_number ? `(${next.head_number})` : "";
     const nf = $("nextFlag");
     const nNat = next.rider?.nationality || next.rider?.country_code || next.nationality || next.country_code;
     const nsrc = flagSrc(nNat);
     if(nf){ if(nsrc){ nf.src = nsrc; nf.style.display = ""; } else { nf.removeAttribute("src"); nf.style.display = "none"; } }
     $("nextHorse").textContent = next.horse?.full_name || "—";
   }else{
-    $("nextOrder").textContent = "—";
     $("nextRider").textContent = "—";
-    $("nextBib").textContent = "";
     const nf = $("nextFlag"); if(nf){ nf.removeAttribute("src"); nf.style.display="none"; }
     $("nextHorse").textContent = "—";
   }
@@ -1233,18 +1243,16 @@ if(state.mode === "sample"){
     }
   }
 
-  // stats under NEXT only in LIVE view
-  const rs = document.getElementById("rightStats");
-  if(rs){ rs.style.display = (isLive && state.layout==="live") ? "grid" : "none"; }
+  // bottomStats always visible in LIVE view
+  const bs = document.getElementById("bottomStats");
+  if(bs){ bs.style.display = (state.layout==="live") ? "grid" : "none"; }
 
   const eta = computeFinishEta(totalDone, totalAll);
-  const etaEl = $("statEta");
-  if(eta && etaEl){
-    etaEl.textContent = eta;
-    etaEl.classList.remove("etaPending");
-  }else if(etaEl){
-    etaEl.textContent = "...";
-    etaEl.classList.add("etaPending");
+  const finishEl = $("finishTime");
+  if(eta && finishEl){
+    finishEl.textContent = eta === "FINISH" ? "FINISHED" : eta;
+  }else if(finishEl){
+    finishEl.textContent = "—";
   }
 
   if(state.layout === "live"){
