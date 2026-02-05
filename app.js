@@ -40,7 +40,7 @@ const state = {
   liveErrorAt: 0,
   livePollHandle: null,
   liveClockHandle: null,
-  lastFinish: null,          // {bib, rank, time, penalty}
+  lastFinish: null,          // snapshot of last finish to keep rank visible
   // Live timing integration (chrono/monotonic anchors)
   liveTiming: {
     bib: null,
@@ -182,7 +182,8 @@ function renderCurrentBox(live, starting){
       timeStr = `${Math.floor(t)} s`; // solo secondi durante il running normale
     }
   }else{
-    timeStr = fmtLiveTime(live.finish_time);
+    const fTime = live.finish_time ?? state.lastFinish?.time;
+    timeStr = fmtLiveTime(fTime);
   }
   $("currentTime").textContent = timeStr;
   setStateClass($("currentTime"), live?.state);
@@ -682,6 +683,7 @@ function applyTimingEvents(live){
     switch(ev?.type){
       case "start":
         timingHandleStart(ev);
+        state.lastFinish = null; // new run starts, clear old finish snapshot
         break;
       case "time_anchor":
         timingHandleAnchor(ev);
@@ -699,7 +701,7 @@ function applyTimingEvents(live){
   const curBib = live.current_bib;
   if(state.liveTiming.bib && curBib && state.liveTiming.bib !== curBib){
     timingReset();
-    state.lastFinish = null;
+    // keep lastFinish until a start arrives, so previous rank stays visible during gap
   }
 
   // prevent false running when no start has been received client-side
@@ -716,7 +718,7 @@ function applyTimingEvents(live){
     }
   }
 
-  // capture last finish snapshot to keep rank/time visible until next bib
+  // capture last finish snapshot to keep rank/time visible until next start
   if(live.state === "finished" && live.finish_time != null){
     state.lastFinish = {
       bib: live.current_bib,
