@@ -71,84 +71,53 @@ body.setup-open #bg{opacity:0.35;}
 }
 
 .topbar{
-  height:10%;
+  height:9.6%;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:1.2% 2.0%;
-  gap:2%;
-  background:rgba(8,20,40,.85);
-  border-bottom:2px solid rgba(0,190,255,.35);
+  padding:1.6% 2.0%;
+  border-bottom:1px solid var(--stroke);
+  background:linear-gradient(90deg, rgba(0,150,255,.22), rgba(0,0,0,0));
 }
 
-.competitionInfo{
-  flex:1;
-  display:flex;
-  align-items:center;
-}
-
-.timeInfo{
-  display:flex;
-  align-items:center;
-  gap:16px;
-}
-
-.trapezoid{
-  background:linear-gradient(135deg, rgba(0,90,180,.75), rgba(0,60,140,.65));
-  padding:14px 28px 14px 20px;
-  clip-path:polygon(0 0, calc(100% - 24px) 0, 100% 100%, 0 100%);
-  border:1px solid rgba(0,190,255,.45);
-  box-shadow:0 4px 16px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.15);
-  position:relative;
-}
-
-.trapHeader{
-  font-size:clamp(12px,1vw,16px);
-  font-weight:900;
-  letter-spacing:1px;
-  color:rgba(255,255,255,.75);
-  margin-bottom:4px;
-}
-
-.trapContent{
-  display:flex;
-  align-items:baseline;
-  gap:12px;
-}
+.title{display:flex;align-items:center;gap:1.6%;min-width:0}
 
 .classNo{
-  font-size:clamp(28px,2.5vw,42px);
+  font-size:clamp(42px,3.9vw,70px);
   font-weight:900;
-  color:rgba(255,255,255,.95);
-  letter-spacing:1px;
+  line-height:0.9;
+  display:flex;
+  align-items:center;
+  margin-top:6px;
+}
+
+.title>div:nth-child(2){
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:8px;
+  margin-top:4px;
+  min-width:0;
 }
 
 .className{
-  font-size:clamp(16px,1.6vw,26px);
-  font-weight:900;
-  color:rgba(255,255,255,.92);
-  white-space:nowrap;
+  font-size: clamp(24px, 2.4vw, 38px);
+  font-weight: 900;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: unset;
+  line-height: 1.05;
+  max-width: none;
 }
 
-.timeRow{
-  display:flex;
-  align-items:baseline;
-  gap:12px;
-  margin:4px 0;
+.subtitle{
+  margin-top:2px;
+  font-size:clamp(13px,1.1vw,18px);
+  color:var(--muted);
+  font-weight:750
 }
 
-.timeLabel{
-  font-size:clamp(11px,0.95vw,14px);
-  font-weight:900;
-  color:rgba(255,255,255,.75);
-  min-width:80px;
-}
-
-.timeValue{
-  font-size:clamp(18px,1.8vw,28px);
-  font-weight:950;
-  color:rgba(255,255,255,.95);
-}
+.badges{display:flex;gap:10px;align-items:center}
 
 .badge{
   padding:12px 16px;
@@ -185,63 +154,42 @@ body.setup-open #bg{opacity:0.35;}
   46%,100%{opacity:.25}
 }
 
-.main{height:76%;padding:1% 2% 0.5% 2%;min-height:0}
+.main{height:81.6%;padding:1% 2% 0.15% 2%;min-height:0}
 
 .bottomStats{
-  height:12%;
+  height:8.2%;
   display:grid;
   grid-template-columns:1fr 1fr 1fr;
-  gap:1.5%;
-  padding:0.8% 2% 1% 2%;
+  gap:1%;
+  padding:0.6% 1.2% 1.2% 1.2%
 }
 
-.statBox{
-  border:1px solid rgba(0,190,255,.35);
-  background:linear-gradient(135deg, rgba(0,70,140,.65), rgba(0,40,90,.55));
-  border-radius:14px;
-  padding:16px 20px;
+.stat{
+  border:1px solid var(--stroke);
+  background:var(--panel);
+  border-radius:12px;
+  padding:12px;
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  gap:8px;
-  backdrop-filter:blur(10px);
-  box-shadow:0 6px 20px rgba(0,0,0,.40);
-  position:relative;
+  gap:6px;
+  aspect-ratio:1/1;
+  backdrop-filter:blur(6px);
 }
 
-.statLabel{
-  font-size:clamp(14px,1.25vw,20px);
-  color:rgba(255,255,255,.85);
+.stat .label{
+  font-size:clamp(13px,1.05vw,16px);
+  color:var(--muted);
   font-weight:900;
-  text-align:center;
-  letter-spacing:1px;
+  text-align:center
 }
 
-.statValue{
-  font-size:clamp(28px,2.6vw,46px);
+.stat .value{
+  font-size:clamp(22px,2vw,34px);
   font-weight:950;
   text-align:center;
-  line-height:1;
-  color:rgba(255,255,255,.95);
-}
-
-.statBox.total{
-  background:linear-gradient(135deg, rgba(0,100,190,.75), rgba(0,60,130,.65));
-  border-color:rgba(0,220,255,.45);
-}
-
-.statBox.total::before{
-  content:"";
-  position:absolute;
-  left:18px;
-  right:18px;
-  bottom:12px;
-  height:8px;
-  border-radius:999px;
-  background:linear-gradient(90deg, rgba(0,220,255,.85), rgba(0,255,180,.75)) 0 0/var(--p,50%) 100% no-repeat,
-              rgba(0,0,0,.35);
-  border:1px solid rgba(255,255,255,.20);
+  line-height:1.1
 }
 
 .panel{
@@ -353,19 +301,12 @@ body.setup-open #bg{opacity:0.35;}
 .gridLive{
   height:100%;
   display:grid;
-  grid-template-columns:65% 35%;
-  gap:1.8%;
+  grid-template-columns:62% 38%;
+  gap:1.6%;
   min-height:0
 }
 
-.leftPanel{height:100%;min-height:0}
-
-.rightPanel{
-  height:100%;
-  display:flex;
-  flex-direction:column;
-  gap:1.2%;
-}
+.right{height:100%;display:flex;flex-direction:column;gap:0.6%}
 
 .box{
   border:1px solid var(--stroke);
@@ -408,68 +349,29 @@ body.setup-open #bg{opacity:0.35;}
 
 .kv{margin-top:12px;display:flex;justify-content:space-between;font-weight:950}
 .kv3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px 10px;align-items:flex-start}
-.lastBox{flex:0 0 18%;}
-.nextBox{flex:0 0 18%;}
-.currentBox{flex:1;min-height:0;}
+.sideBox{min-height:150px;}
+.sideBox .bigLine{font-size:clamp(20px,1.95vw,30px);}
+.sideBox .midLine{font-size:clamp(16px,1.6vw,24px);}
+.sideBox .kv .small{font-size:clamp(13px,1.2vw,17px);}
+.sideBox .kv span:not(.small){font-size:clamp(16px,1.6vw,24px);font-weight:950;}
 
-.sideBox .bigLine{font-size:clamp(18px,1.75vw,26px);font-weight:900;}
-.sideBox .midLine{font-size:clamp(15px,1.45vw,22px);margin-top:6px;font-weight:800;}
-
-.scoreRow{
-  margin-top:12px;
-  display:flex;
-  justify-content:space-between;
-  align-items:baseline;
-  font-size:clamp(16px,1.55vw,24px);
+.currentBox{min-height:260px;}
+.currentBox .bigLine{font-size:clamp(24px,2.1vw,34px);}
+.currentBox .midLine{font-size:clamp(19px,1.95vw,27px);}
+.currentBox .kv{margin-top:16px;}
+.currentKv{display:flex;flex-direction:column;gap:10px;}
+.currentKv .metric{display:flex;align-items:baseline;gap:10px;}
+.currentLabel{font-size:clamp(24px,2.1vw,34px);font-weight:950;letter-spacing:.2px;line-height:1;}
+.currentBox .livePenalty,
+.currentBox .liveState,
+.currentKv .livePenalty,
+.currentKv .liveState{
+  font-size:clamp(72px,6.2vw,130px);
   font-weight:950;
+  line-height:1.05;
 }
 
-.scoreLabel{
-  font-size:clamp(14px,1.35vw,20px);
-  color:var(--muted);
-  margin-right:6px;
-}
-
-.currentBox .bigLine{font-size:clamp(20px,1.95vw,30px);}
-.currentBox .midLine{font-size:clamp(17px,1.65vw,25px);margin-top:8px;}
-
-.currentMetrics{
-  margin-top:16px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:12px;
-}
-
-.bigTime{
-  font-size:clamp(68px,7vw,120px);
-  font-weight:950;
-  line-height:1;
-  color:rgba(255,255,255,.95);
-}
-
-.currentPenalty{
-  display:flex;
-  align-items:baseline;
-  gap:10px;
-  font-size:clamp(24px,2.4vw,38px);
-  font-weight:950;
-}
-
-.penLabel{
-  font-size:clamp(18px,1.75vw,28px);
-  color:var(--muted);
-}
-
-.livePenalty{
-  font-size:clamp(24px,2.4vw,38px);
-  font-weight:950;
-}
-
-#currentCompetitor{
-  color:rgba(255,200,100,.95);
-  font-weight:950;
-}
+#currentRank{color:#ffb347;}
 
 .gridFinal{height:100%;display:block}
 .column{height:100%}
@@ -498,7 +400,8 @@ body.setup-open #bg{opacity:0.35;}
 .state-finished{color:#7dd0ff}
 .state-idle{color:var(--muted)}
 
-/* Legacy rightStats (no longer used - now using bottomStats) */
+/* stats under NEXT */
+.rightStats{margin-top:6px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 
 .statMini{
   border:1px solid var(--stroke);
@@ -895,55 +798,6 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
     padding-right: env(safe-area-inset-right);
   }
 
-  /* Mobile header adjustments */
-  .topbar {
-    flex-direction: column;
-    gap: 10px;
-    padding: 12px 10px;
-    height: auto;
-  }
-
-  .competitionInfo {
-    width: 100%;
-  }
-
-  .timeInfo {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .trapezoid {
-    padding: 10px 20px 10px 14px;
-    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 100%, 0 100%);
-  }
-
-  .trapHeader {
-    font-size: 11px;
-    margin-bottom: 3px;
-  }
-
-  .classNo {
-    font-size: 22px;
-  }
-
-  .className {
-    font-size: 14px;
-  }
-
-  .timeRow {
-    margin: 2px 0;
-    gap: 8px;
-  }
-
-  .timeLabel {
-    font-size: 10px;
-    min-width: 60px;
-  }
-
-  .timeValue {
-    font-size: 16px;
-  }
-
   /* Setup overlay mobile */
   .setup {
     padding: 12px;
@@ -1065,15 +919,15 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   }
 
   /* order on mobile: CURRENT, LAST, NEXT, stats, panel */
-  .leftPanel { order: 5; width: 100%; height: auto; }
-  .rightPanel { order: 1; width: 100%; height: auto; flex-direction: column; gap: 10px; }
-  .currentBox { order: 1; flex: 1; min-height: auto; }
-  .lastBox { order: 2; flex: 1; min-height: auto; }
-  .nextBox { order: 3; flex: 1; min-height: auto; }
-  .bottomStats { order: 4; height: auto; padding: 0; margin-bottom: 10px; }
+  .right { order: 1; width: 100%; height: auto; flex-direction: column; gap: 10px; }
+  .currentBox{order:1;}
+  .lastBox{order:2;}
+  .nextBox{order:3;}
+  .rightStats { order: 4; margin-top: 0; }
+  .panel { order: 5; width: 100%; min-height: 200px; background: rgba(8,14,28,.82); }
 
-  .leftPanel .panel { height: auto; min-height: 250px; background: rgba(8,14,28,.82); }
-  .leftPanel .rows { height: auto; max-height: 500px; min-height: 220px; overflow-y:auto; -webkit-overflow-scrolling: touch; }
+  .gridLive .panel { height: auto; min-height: 250px; }
+  .gridLive .rows { height: auto; max-height: 500px; min-height: 220px; overflow-y:auto; -webkit-overflow-scrolling: touch; }
 
   .box { width: 100%; min-height: auto; padding: 0; }
   .boxBody { padding: 14px 16px 16px 16px; }
@@ -1110,49 +964,30 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
 
   /* Current box - larger for visibility */
   .currentBox .bigLine {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .currentBox .midLine {
-    font-size: 15px;
-  }
-
-  .currentMetrics {
-    margin-top: 12px;
-    gap: 10px;
-  }
-
-  .bigTime {
-    font-size: 52px !important;
-  }
-
-  .currentPenalty {
-    font-size: 20px;
-    gap: 8px;
-  }
-
-  .penLabel {
     font-size: 16px;
   }
 
-  .livePenalty {
-    font-size: 20px;
+  .currentLabel {
+    font-size: 16px !important;
   }
 
-  #currentCompetitor {
-    font-size: 13px;
+  .currentBox .livePenalty,
+  .currentBox .liveState,
+  .currentKv .livePenalty,
+  .currentKv .liveState {
+    font-size: 48px !important;
+    line-height: 1.1;
   }
 
-  .scoreRow {
-    margin-top: 10px;
-    font-size: 15px;
+  #currentRank {
+    font-size: 14px;
   }
 
-  .scoreLabel {
-    font-size: 13px;
-  }
-
-  .bottomStats {
+  .rightStats {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     width: 100%;
@@ -1287,29 +1122,37 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
     justify-self: end;
   }
 
-  .statBox {
-    padding: 10px 8px;
-    min-height: 70px;
-    border-radius: 10px;
+  .statMini {
+    aspect-ratio: auto;
+    padding: 12px 8px;
+    min-height: 75px;
+    border-radius: 12px;
   }
 
   /* Fix for TOTAL stat with progress bar */
-  .statBox.total::before {
-    bottom: 8px;
-    height: 8px;
-    left: 12px;
-    right: 12px;
+  .statMini.total {
+    padding-bottom: 22px;
+    min-height: 85px;
   }
 
-  .statLabel {
+  .statMini.total::after {
+    bottom: 8px;
+    height: 10px;
+  }
+
+  .statMini .label {
     font-size: 10px;
     line-height: 1.2;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
   }
 
-  .statValue {
+  .statMini .value {
     font-size: 20px;
     font-weight: 950;
+  }
+
+  #statEta {
+    font-size: 20px;
   }
 
   /* Final results layout for mobile */
@@ -1393,36 +1236,35 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
     margin-top: 4px;
   }
 
-  .bigTime {
-    font-size: 40px !important;
+  .currentBox .livePenalty,
+  .currentBox .liveState,
+  .currentKv .livePenalty,
+  .currentKv .liveState {
+    font-size: 36px !important;
   }
 
-  .currentPenalty {
-    font-size: 18px;
+  .currentLabel {
+    font-size: 14px !important;
   }
 
-  .penLabel {
-    font-size: 14px;
-  }
-
-  .statBox {
+  .statMini {
     min-height: 60px;
     padding: 8px 6px;
   }
 
-  .statLabel {
+  .statMini .label {
     font-size: 9px;
   }
 
-  .statValue {
+  .statMini .value {
     font-size: 16px;
   }
 
-  .leftPanel .panel {
+  .gridLive .panel {
     min-height: 180px;
   }
 
-  .leftPanel .rows {
+  .gridLive .rows {
     max-height: 300px;
     min-height: 150px;
   }
@@ -1534,12 +1376,11 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
     font-size: 14px;
   }
 
-  .bigTime {
-    font-size: 44px !important;
-  }
-
-  .currentPenalty {
-    font-size: 19px;
+  .currentBox .livePenalty,
+  .currentBox .liveState,
+  .currentKv .livePenalty,
+  .currentKv .liveState {
+    font-size: 42px !important;
   }
 
   .row {
@@ -1574,20 +1415,21 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
     font-size: 13px;
   }
 
-  .statBox {
+  .statMini {
     padding: 10px 6px;
     min-height: 70px;
   }
 
-  .statBox.total::before {
-    bottom: 8px;
+  .statMini.total {
+    padding-bottom: 20px;
+    min-height: 80px;
   }
 
-  .statLabel {
+  .statMini .label {
     font-size: 9px;
   }
 
-  .statValue {
+  .statMini .value {
     font-size: 18px;
   }
 
