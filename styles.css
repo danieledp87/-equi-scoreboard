@@ -577,6 +577,30 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   background:rgba(0,190,255,.12);
 }
 
+/* TABLET RESPONSIVE */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .setup {
+    padding: 16px;
+  }
+
+  .setupCard {
+    width: min(680px, 94vw);
+    padding: 20px 18px;
+  }
+
+  .setupCard h2 {
+    font-size: 20px;
+  }
+
+  input, select {
+    font-size: 15px;
+  }
+
+  button {
+    font-size: 15px;
+  }
+}
+
 /* MOBILE RESPONSIVE */
 @media (max-width: 768px) {
   body{
@@ -592,6 +616,78 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
     top: 0;
     border-left: none;
     border-right: none;
+  }
+
+  /* Setup overlay mobile */
+  .setup {
+    padding: 12px;
+    align-items: flex-start;
+    overflow-y: auto;
+  }
+
+  .setupCard {
+    width: 100%;
+    max-width: 100%;
+    padding: 16px 14px;
+    margin: 0;
+  }
+
+  .setupCard h2 {
+    font-size: 20px;
+    margin-bottom: 14px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  label {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  input, select {
+    font-size: 16px;
+    padding: 12px 10px;
+  }
+
+  .arenaRow {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .arenaRow select {
+    width: 100%;
+  }
+
+  .smallBtn {
+    width: 100%;
+    padding: 12px;
+  }
+
+  .controls {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  button {
+    width: 100%;
+    padding: 14px 12px;
+    font-size: 16px;
+  }
+
+  .hint {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .setupStatus {
+    margin-left: 0;
+    text-align: center;
+    width: 100%;
+    font-size: 13px;
   }
 
   .topbar {
@@ -711,5 +807,44 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
 
   .statMini .value {
     font-size: 18px;
+  }
+}
+
+/* EXTRA SMALL MOBILE (under 480px) */
+@media (max-width: 480px) {
+  .setup {
+    padding: 8px;
+  }
+
+  .setupCard {
+    padding: 14px 12px;
+    border-radius: 12px;
+  }
+
+  .setupCard h2 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .grid {
+    gap: 12px;
+  }
+
+  label {
+    font-size: 12px;
+  }
+
+  input, select {
+    font-size: 16px;
+    padding: 10px 8px;
+  }
+
+  button {
+    padding: 12px 10px;
+    font-size: 15px;
+  }
+
+  .hint {
+    font-size: 12px;
   }
 }
