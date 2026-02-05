@@ -172,6 +172,9 @@ function renderCurrentBox(live, starting){
   const rankVal = (available && live && live.rank != null)
     ? live.rank
     : (state.lastFinish?.rank ?? null);
+  if(available && live){
+    console.log(`[DISPLAY] State: ${live.state}, Rank: ${live.rank}, Bib: ${bib}, Penalty: ${penalty}`);
+  }
   $("currentRank").textContent = rankVal != null ? `Rank ${rankVal}` : "—";
   $("currentScore").textContent = penalty;
   setPenaltyClass($("currentScore"), penalty);
@@ -181,6 +184,7 @@ function renderCurrentBox(live, starting){
     timeStr = "—";
   }else if(live.state === "running"){
     const t = timingCurrentSeconds();
+    console.log(`[TIMER] timingCurrentSeconds returned: ${t}, t0Site: ${state.liveTiming.t0Site}, startOffset: ${state.liveTiming.startOffset}`);
     if(t === null){
       timeStr = "—";
       setStateClass($("currentTime"), "idle");
@@ -687,16 +691,22 @@ function applyTimingEvents(live){
   if(!live || !live.available) return;
   // the backend now can send optional timing_events array
   const events = live.timing_events || [];
+  if(events.length > 0){
+    console.log(`[TIMING] Received ${events.length} events:`, events.map(e => e.type));
+  }
   for(const ev of events){
     switch(ev?.type){
       case "start":
+        console.log(`[TIMING] Processing start: bib=${ev.bib} chrono_time=${ev.chrono_time} mono_ts=${ev.mono_ts}`);
         timingHandleStart(ev);
         state.lastFinish = null; // new run starts, clear old finish snapshot
         break;
       case "time_anchor":
+        console.log(`[TIMING] Processing anchor: chrono_time=${ev.chrono_time} mono_ts=${ev.mono_ts}`);
         timingHandleAnchor(ev);
         break;
       case "phase_reset":
+        console.log(`[TIMING] Processing phase_reset: raw_time=${ev.raw_time} window_sec=${ev.window_sec}`);
         timingHandlePhaseReset(ev);
         break;
       default:
@@ -722,6 +732,7 @@ function applyTimingEvents(live){
     const lt = state.liveTiming;
     const nowM = nowMono();
     if(lt.lastAnchorMono && (nowM - lt.lastAnchorMono) > 7){
+      console.warn(`[TIMER] No anchor for ${(nowM - lt.lastAnchorMono).toFixed(1)}s - disabling timer. Make sure main.py sends time_anchor every 2-3s!`);
       lt.t0Site = null; // disables timer until next start/anchor
     }
   }

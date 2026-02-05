@@ -206,6 +206,7 @@ class Handler(SimpleHTTPRequestHandler):
                 st["finish_time"] = None
                 st["rank"] = None
                 st["penalty"] = 0
+                print(f"[EVENT] bib_change: bib={bib}")
                 # keep state/start_time as-is (timer may keep running)
             elif etype == "start":
                 st["current_bib"] = bib
@@ -214,40 +215,56 @@ class Handler(SimpleHTTPRequestHandler):
                 st["finish_time"] = None
                 st["rank"] = None
                 st["penalty"] = st.get("penalty", 0)
+                chrono = p.get("chrono_time")
+                mono = p.get("mono_ts")
+                print(f"[EVENT] start: bib={bib} chrono_time={chrono} mono_ts={mono}")
                 self._append_event(entry, {
                     "type": "start",
                     "bib": bib,
-                    "chrono_time": p.get("chrono_time"),
-                    "mono_ts": p.get("mono_ts"),
+                    "chrono_time": chrono,
+                    "mono_ts": mono,
                     "ts": ts,
                 })
             elif etype == "time_anchor":
                 # pure timing event, no state change
+                chrono = p.get("chrono_time")
+                mono = p.get("mono_ts")
+                print(f"[EVENT] time_anchor: bib={bib} chrono_time={chrono} mono_ts={mono}")
                 self._append_event(entry, {
                     "type": "time_anchor",
                     "bib": bib,
-                    "chrono_time": p.get("chrono_time"),
-                    "mono_ts": p.get("mono_ts"),
+                    "chrono_time": chrono,
+                    "mono_ts": mono,
                     "ts": ts,
                 })
             elif etype == "phase_reset":
+                raw = p.get("raw_time")
+                mono = p.get("mono_ts")
+                win = p.get("window_sec")
+                print(f"[EVENT] phase_reset: bib={bib} raw_time={raw} mono_ts={mono} window_sec={win}")
                 self._append_event(entry, {
                     "type": "phase_reset",
                     "bib": bib,
-                    "raw_time": p.get("raw_time"),
-                    "mono_ts": p.get("mono_ts"),
-                    "window_sec": p.get("window_sec"),
+                    "raw_time": raw,
+                    "mono_ts": mono,
+                    "window_sec": win,
                     "ts": ts,
                 })
             elif etype == "penalty":
+                pen = p.get("penalty")
                 st["current_bib"] = bib or st.get("current_bib")
-                st["penalty"] = p.get("penalty")
+                st["penalty"] = pen
+                print(f"[EVENT] penalty: bib={bib} penalty={pen}")
             elif etype == "finish":
+                ftime = p.get("time")
+                pen = p.get("penalty")
+                rank = p.get("rank")
                 st["current_bib"] = bib or st.get("current_bib")
-                st["finish_time"] = p.get("time")
-                st["penalty"] = p.get("penalty")
-                st["rank"] = p.get("rank")
+                st["finish_time"] = ftime
+                st["penalty"] = pen
+                st["rank"] = rank
                 st["state"] = "finished"
+                print(f"[EVENT] finish: bib={bib} time={ftime} penalty={pen} rank={rank}")
             else:
                 return json_response(self, 400, {"error": "unknown_type"})
 
@@ -283,9 +300,12 @@ class Handler(SimpleHTTPRequestHandler):
             pending = st.get("pending_events", []) or []
             st["pending_events"] = []
             entry["live_state"] = st
+            registry[key] = entry  # save cleared state immediately to avoid race
             payload.update(st)
             if pending:
                 payload["timing_events"] = pending
+                print(f"[DEBUG] Sending {len(pending)} timing events to frontend: {[e.get('type') for e in pending]}")
+            print(f"[DEBUG] Current state - bib:{st.get('current_bib')} state:{st.get('state')} rank:{st.get('rank')} penalty:{st.get('penalty')}")
             return json_response(self, 200, payload)
 
     def _get_registry(self):
