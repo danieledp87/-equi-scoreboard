@@ -147,6 +147,11 @@ function renderCurrentBox(live, starting){
   const hasFinish = live && live.finish_time !== undefined && live.finish_time !== null;
   const fallbackMsg = available ? null : "Dati live non disponibili";
 
+  // DEBUG: Log availability status
+  if(!available){
+    console.log(`[CURRENT] Data NOT available - live:${!!live} available:${live?.available} hbStale:${hbStale} fetchStale:${fetchStale} errorStale:${errorStale}`);
+  }
+
   const setRiderHorse = (bib, riderEl, horseEl, flagEl, bibEl) => {
     const entry = findStartingByBib(starting, bib);
     if(entry){
@@ -173,19 +178,22 @@ function renderCurrentBox(live, starting){
     ? live.rank
     : (state.lastFinish?.rank ?? null);
   if(available && live){
-    console.log(`[DISPLAY] State: ${live.state}, Rank: ${live.rank}, Bib: ${bib}, Penalty: ${penalty}`);
+    console.log(`[DISPLAY] State: ${live.state}, Rank: ${live.rank}, Bib: ${bib}, Penalty: ${penalty}, finish_time: ${live.finish_time}`);
   }
+  console.log(`[RANK] rankVal=${rankVal}, live.rank=${live?.rank}, lastFinish.rank=${state.lastFinish?.rank}`);
   $("currentRank").textContent = rankVal != null ? `Rank ${rankVal}` : "—";
   $("currentScore").textContent = penalty;
   setPenaltyClass($("currentScore"), penalty);
 
   let timeStr;
   if(!available){
+    console.log(`[TIME] Not available - showing "—"`);
     timeStr = "—";
   }else if(live.state === "running"){
     const t = timingCurrentSeconds();
-    console.log(`[TIMER] timingCurrentSeconds returned: ${t}, t0Site: ${state.liveTiming.t0Site}, startOffset: ${state.liveTiming.startOffset}`);
+    console.log(`[TIMER] State=running, timingCurrentSeconds=${t}, t0Site=${state.liveTiming.t0Site}, startOffset=${state.liveTiming.startOffset}, lastAnchorMono=${state.liveTiming.lastAnchorMono}`);
     if(t === null){
+      console.log(`[TIME] Running but no timing data - showing "—". Did you receive a 'start' event?`);
       timeStr = "—";
       setStateClass($("currentTime"), "idle");
     }else if(phaseWindowActive()){
@@ -195,6 +203,10 @@ function renderCurrentBox(live, starting){
     }
   }else{
     const fTime = live.finish_time ?? state.lastFinish?.time;
+    console.log(`[TIME] State=${live.state}, finish_time=${live.finish_time}, lastFinish.time=${state.lastFinish?.time}, showing: ${fmtLiveTime(fTime)}`);
+    if(!fTime){
+      console.warn(`[TIME] State is ${live.state} but no finish_time available! Did you receive a 'finish' event with time field?`);
+    }
     timeStr = fmtLiveTime(fTime);
   }
   $("currentTime").textContent = timeStr;
@@ -688,11 +700,16 @@ async function pollLiveCurrent(){
 }
 
 function applyTimingEvents(live){
-  if(!live || !live.available) return;
+  if(!live || !live.available){
+    console.log(`[TIMING] applyTimingEvents skipped - live not available`);
+    return;
+  }
   // the backend now can send optional timing_events array
   const events = live.timing_events || [];
   if(events.length > 0){
     console.log(`[TIMING] Received ${events.length} events:`, events.map(e => e.type));
+  }else{
+    console.log(`[TIMING] No timing events in this poll`);
   }
   for(const ev of events){
     switch(ev?.type){
@@ -724,6 +741,7 @@ function applyTimingEvents(live){
 
   // prevent false running when no start has been received client-side
   if(live.state === "running" && state.liveTiming.t0Site === null){
+    console.warn(`[TIMING] Backend says 'running' but no start event received yet - forcing state to 'idle'`);
     live.state = "idle";
   }
 
@@ -739,12 +757,15 @@ function applyTimingEvents(live){
 
   // capture last finish snapshot to keep rank/time visible until next start
   if(live.state === "finished" && live.finish_time != null){
+    console.log(`[TIMING] Captured finish snapshot - bib:${live.current_bib} time:${live.finish_time} rank:${live.rank} penalty:${live.penalty}`);
     state.lastFinish = {
       bib: live.current_bib,
       rank: live.rank,
       time: live.finish_time,
       penalty: live.penalty,
     };
+  }else if(live.state === "finished" && live.finish_time == null){
+    console.warn(`[TIMING] State is 'finished' but finish_time is null! The 'finish' event may be missing the 'time' field.`);
   }
 }
 
