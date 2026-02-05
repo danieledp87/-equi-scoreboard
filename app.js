@@ -38,6 +38,21 @@ const state = {
   liveErrorAt: 0,
   livePollHandle: null,
   liveClockHandle: null,
+  // Live timing integration (chrono/monotonic anchors)
+  liveTiming: {
+    bib: null,
+    startKey: null,
+    t0Site: null,
+    startOffset: 0,
+    driftOffset: 0,
+    smooth: null,
+    lastAnchorToken: null,
+    lastAnchorMono: null,
+    phaseWindowUntil: null,
+    phaseRawTime: null,
+    lastPhaseKey: null,
+    waitingForAnchor: false,
+  },
   // ETA tracking
   finishStartTime: null,       // timestamp when first result of the class is seen
   finishSamples: new Map(),    // legacy placeholder (not used)
@@ -129,11 +144,15 @@ function renderCurrentBox(live, starting){
   $("currentScore").textContent = penalty;
   setPenaltyClass($("currentScore"), penalty);
 
-  const timeStr = available
-    ? (live.state === "running"
-        ? fmtLiveElapsedSeconds(live.start_time, nowS)
-        : fmtLiveTime(live.finish_time))
-    : "—";
+  let timeStr;
+  if(!available){
+    timeStr = "—";
+  }else if(live.state === "running"){
+    const t = timingCurrentSeconds();
+    timeStr = (t === null) ? fmtLiveElapsedSeconds(live.start_time, nowS) : `${t.toFixed(2)} s`;
+  }else{
+    timeStr = fmtLiveTime(live.finish_time);
+  }
   $("currentTime").textContent = timeStr;
   setStateClass($("currentTime"), live?.state);
 }
@@ -454,6 +473,121 @@ function fmtLiveElapsedSeconds(start, nowS){
   return `${s}s`;
 }
 
+// ---- Live timing with anchors and phase reset ----
+function nowMono(){
+  // performance.now has better monotonicity if available
+  if(typeof performance !== "undefined" && performance.now){
+    return performance.now() / 1000;
+  }
+  return Date.now() / 1000;
+}
+
+function timingReset(){
+  state.liveTiming = {
+    bib: null,
+    startKey: null,
+    t0Site: null,
+    startOffset: 0,
+    driftOffset: 0,
+    smooth: null,
+    lastAnchorToken: null,
+    lastAnchorMono: null,
+    phaseWindowUntil: null,
+    phaseRawTime: null,
+    lastPhaseKey: null,
+  };
+}
+
+function timingHandleStart(ev){
+  const { bib, chrono_time, mono_ts } = ev;
+  const t0 = nowMono();
+  state.liveTiming = {
+    ...state.liveTiming,
+    bib,
+    startKey: `${bib||"?"}-${t0}`,
+    t0Site: t0,
+    startOffset: safeNum(chrono_time) || 0,
+    driftOffset: 0,
+    smooth: null,
+    lastAnchorToken: null,
+    lastAnchorMono: null,
+    phaseWindowUntil: null,
+    phaseRawTime: null,
+    lastPhaseKey: null,
+    waitingForAnchor: true,
+  };
+}
+
+function timingHandleAnchor(ev){
+  const { chrono_time, mono_ts } = ev;
+  if(state.liveTiming.t0Site === null) return; // no start yet
+  const siteNow = nowMono();
+  const anchorMono = safeNum(mono_ts) ?? siteNow;
+  const elapsedSite = (siteNow - state.liveTiming.t0Site) + state.liveTiming.startOffset + state.liveTiming.driftOffset;
+  const target = safeNum(chrono_time);
+  if(target === null) return;
+  const error = target - elapsedSite;
+  const absErr = Math.abs(error);
+  state.liveTiming.lastAnchorMono = anchorMono;
+  state.liveTiming.lastAnchorToken = `${anchorMono}-${target}`;
+  state.liveTiming.waitingForAnchor = false;
+
+  const SNAP_THR = 0.12;
+  const EASE_THR = 0.08;
+  const EASE_MS = 300;
+
+  if(absErr >= SNAP_THR){
+    state.liveTiming.driftOffset += error;
+    state.liveTiming.smooth = null;
+  }else if(absErr >= EASE_THR){
+    const startMs = performance.now();
+    const from = state.liveTiming.driftOffset;
+    const to = from + error;
+    state.liveTiming.smooth = { startMs, duration: EASE_MS, from, to };
+  }else{
+    // tiny error, ignore
+  }
+}
+
+function timingHandlePhaseReset(ev){
+  const { bib, raw_time, mono_ts, window_sec } = ev;
+  const t0 = nowMono();
+  const win = safeNum(window_sec) || 5;
+  state.liveTiming.phaseWindowUntil = (safeNum(mono_ts) ?? t0) + win;
+  state.liveTiming.phaseRawTime = safeNum(raw_time) ?? null;
+  state.liveTiming.lastPhaseKey = `${bib||"?"}-${t0}`;
+}
+
+function timingCurrentSeconds(){
+  const lt = state.liveTiming;
+  if(lt.t0Site === null) return null;
+  const siteNow = nowMono();
+
+  // apply easing if present
+  if(lt.smooth){
+    const nowMs = performance.now();
+    const { startMs, duration, from, to } = lt.smooth;
+    const t = Math.min(1, Math.max(0, (nowMs - startMs) / duration));
+    if(t >= 1){
+      lt.driftOffset = to;
+      lt.smooth = null;
+    }else{
+      // ease-out cubic
+      const k = 1 - Math.pow(1 - t, 3);
+      lt.driftOffset = from + (to - from) * k;
+    }
+  }
+
+  const integrated = (siteNow - lt.t0Site) + lt.startOffset + lt.driftOffset;
+
+  // phase window override
+  if(lt.phaseWindowUntil && siteNow <= lt.phaseWindowUntil){
+    if(lt.phaseRawTime !== null) return Math.max(0, lt.phaseRawTime);
+  }
+
+  return Math.max(0, integrated);
+}
+
 // ---- Finish ETA helpers ----
 function detectStartTime(pick){
   if(state.finishStartTime) return;
@@ -495,10 +629,48 @@ async function pollLiveCurrent(){
     state.liveCurrent = data;
     state.liveCurrentAt = Date.now();
     state.liveErrorAt = 0;
+    applyTimingEvents(data);
   }catch(e){
     state.liveErrorAt = Date.now();
   }finally{
     clearTimeout(to);
+  }
+}
+
+function applyTimingEvents(live){
+  if(!live || !live.available) return;
+  // the backend now can send optional timing_events array
+  const events = live.timing_events || [];
+  for(const ev of events){
+    switch(ev?.type){
+      case "start":
+        timingHandleStart(ev);
+        break;
+      case "time_anchor":
+        timingHandleAnchor(ev);
+        break;
+      case "phase_reset":
+        timingHandlePhaseReset(ev);
+        break;
+      default:
+        // ignore unknown
+        break;
+    }
+  }
+
+  // if bib changes without explicit start event, keep previous timing unless different bib
+  const curBib = live.current_bib;
+  if(state.liveTiming.bib && curBib && state.liveTiming.bib !== curBib){
+    timingReset();
+  }
+
+  // stale anchors safeguard: if running and no anchor >7s, suspend integration to avoid drift
+  if(live.state === "running"){
+    const lt = state.liveTiming;
+    const nowM = nowMono();
+    if(lt.lastAnchorMono && (nowM - lt.lastAnchorMono) > 7){
+      lt.t0Site = null; // disables timer until next start/anchor
+    }
   }
 }
 
@@ -514,7 +686,8 @@ function startLiveClock(){
     const available = live && live.available && !hbStale && !fetchStale && !errorFresh;
     if(!available) return;
     if(live.state === "running"){
-      const timeStr = fmtLiveElapsedSeconds(live.start_time, nowS);
+      const t = timingCurrentSeconds();
+      const timeStr = (t === null) ? fmtLiveElapsedSeconds(live.start_time, nowS) : `${t.toFixed(2)} s`;
       const el = $("currentTime");
       if(el){
         el.textContent = timeStr;
