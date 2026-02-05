@@ -708,6 +708,9 @@ function applyTimingEvents(live){
   const events = live.timing_events || [];
   if(events.length > 0){
     console.log(`[TIMING] Received ${events.length} events:`, events.map(e => e.type));
+    // Log full payload so we see esattamente cosa manda main.py
+    console.log("[TIMING] Raw events payload:", JSON.stringify(events));
+    events.forEach((ev, idx) => console.log(`[TIMING] Event[${idx}]`, ev));
   }else{
     console.log(`[TIMING] No timing events in this poll`);
   }
