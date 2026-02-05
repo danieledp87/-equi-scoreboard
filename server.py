@@ -134,6 +134,7 @@ class Handler(SimpleHTTPRequestHandler):
             "start_time": None,
             "finish_time": None,
             "rank": None,
+            "pending_events": [],
         }
         with registry_lock:
             registry[key] = {
@@ -173,6 +174,16 @@ class Handler(SimpleHTTPRequestHandler):
             return json_response(self, 404, {"error": "not_registered"})
         return json_response(self, 200, {"ok": True})
 
+    def _append_event(self, entry, ev):
+        st = entry.setdefault("live_state", {})
+        lst = st.setdefault("pending_events", [])
+        lst.append(ev)
+        # cap the list to avoid unbounded growth
+        if len(lst) > 50:
+            del lst[:-50]
+        st["pending_events"] = lst
+        entry["live_state"] = st
+
     def _live_event(self, p):
         etype = p.get("type")
         source = p.get("source_id")
@@ -203,6 +214,31 @@ class Handler(SimpleHTTPRequestHandler):
                 st["finish_time"] = None
                 st["rank"] = None
                 st["penalty"] = st.get("penalty", 0)
+                self._append_event(entry, {
+                    "type": "start",
+                    "bib": bib,
+                    "chrono_time": p.get("chrono_time"),
+                    "mono_ts": p.get("mono_ts"),
+                    "ts": ts,
+                })
+            elif etype == "time_anchor":
+                # pure timing event, no state change
+                self._append_event(entry, {
+                    "type": "time_anchor",
+                    "bib": bib,
+                    "chrono_time": p.get("chrono_time"),
+                    "mono_ts": p.get("mono_ts"),
+                    "ts": ts,
+                })
+            elif etype == "phase_reset":
+                self._append_event(entry, {
+                    "type": "phase_reset",
+                    "bib": bib,
+                    "raw_time": p.get("raw_time"),
+                    "mono_ts": p.get("mono_ts"),
+                    "window_sec": p.get("window_sec"),
+                    "ts": ts,
+                })
             elif etype == "penalty":
                 st["current_bib"] = bib or st.get("current_bib")
                 st["penalty"] = p.get("penalty")
@@ -242,7 +278,14 @@ class Handler(SimpleHTTPRequestHandler):
                 "competition_id": entry.get("competition_id"),
                 "arena_name": entry.get("arena_name"),
             }
-            payload.update(entry.get("live_state", {}))
+            st = entry.get("live_state", {}) or {}
+            # extract pending events and clear them
+            pending = st.get("pending_events", []) or []
+            st["pending_events"] = []
+            entry["live_state"] = st
+            payload.update(st)
+            if pending:
+                payload["timing_events"] = pending
             return json_response(self, 200, payload)
 
     def _get_registry(self):
