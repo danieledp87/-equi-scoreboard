@@ -50,13 +50,11 @@ body.setup-open #bg{opacity:0.35;}
   inset:0;
   background:
     radial-gradient(circle at 60% 45%,
-      rgba(255,255,255,.08) 0 2px,
+      rgba(255,255,255,.10) 0 2px,
       transparent 3px
     ) 0 0/14px 14px;
-  opacity:.08;
+  opacity:.10;
   pointer-events:none;
-  /* Prevent rendering artifacts */
-  will-change:opacity;
 }
 
 .canvas{
@@ -168,7 +166,7 @@ body.setup-open #bg{opacity:0.35;}
 
 .stat{
   border:1px solid var(--stroke);
-  background:rgba(8,14,28,.88);
+  background:var(--panel);
   border-radius:12px;
   padding:12px;
   display:flex;
@@ -177,10 +175,7 @@ body.setup-open #bg{opacity:0.35;}
   align-items:center;
   gap:6px;
   aspect-ratio:1/1;
-  /* Removed backdrop-filter to fix rendering artifacts */
-  isolation:isolate;
-  transform:translateZ(0);
-  -webkit-transform:translateZ(0);
+  backdrop-filter:blur(6px);
 }
 
 .stat .label{
@@ -199,16 +194,12 @@ body.setup-open #bg{opacity:0.35;}
 
 .panel{
   border:1px solid var(--stroke);
-  background:rgba(8,14,28,.88);
+  background:var(--panel);
   border-radius:12px;
   overflow:hidden;
   min-height:0;
   box-shadow:0 10px 30px rgba(0,0,0,.35);
-  /* Removed backdrop-filter to fix rendering artifacts */
-  isolation:isolate;
-  /* Force GPU acceleration for smoother rendering */
-  transform:translateZ(0);
-  -webkit-transform:translateZ(0);
+  backdrop-filter:blur(8px)
 }
 
 .panelHeader{
@@ -319,13 +310,10 @@ body.setup-open #bg{opacity:0.35;}
 
 .box{
   border:1px solid var(--stroke);
-  background:rgba(8,14,28,.85);
+  background:var(--panel2);
   border-radius:12px;
   overflow:hidden;
-  /* Removed backdrop-filter to fix rendering artifacts */
-  isolation:isolate;
-  transform:translateZ(0);
-  -webkit-transform:translateZ(0);
+  backdrop-filter:blur(10px)
 }
 
 .boxHeader{
