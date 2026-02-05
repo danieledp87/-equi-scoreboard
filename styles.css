@@ -60,17 +60,14 @@ body.setup-open #bg{opacity:0.35;}
 .canvas{
   position:relative;
   z-index:1;
-
-  width:min(98vw,calc(100vh * 16 / 9));
-  height:min(100vh,calc(98vw * 9 / 16));
-  margin-left:0;
-  margin-right:auto;
-
+  width:1920px;   /* base logical size; auto-scaled via JS */
+  height:1080px;
   display:flex;
   flex-direction:column;
-
   border-left:1px solid rgba(255,255,255,.06);
   border-right:1px solid rgba(255,255,255,.06);
+  transform:scale(var(--canvas-scale,1));
+  transform-origin:top left;
 }
 
 .topbar{

@@ -14,6 +14,8 @@ const EQUI_SAMPLE = {
   startingUrl: `${API_BASE}/classes/322284/startinglist.json`,
 };
 const HEARTBEAT_TTL = 60;
+const BASE_W = 1920;
+const BASE_H = 1080;
 
 const state = {
   competitionId: "14277",
@@ -69,6 +71,23 @@ function setStatus(msg){
   const el = $("setupStatus");
   if(el) el.textContent = msg || "";
 }
+
+// Scale the 1920x1080 canvas to fit any viewport (including HiDPI 1080x720)
+function applyCanvasScale(){
+  const canvas = document.querySelector(".canvas");
+  if(!canvas) return;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const scale = Math.min(w / BASE_W, h / BASE_H);
+  canvas.style.setProperty("--canvas-scale", scale);
+  const left = Math.max(0, (w - BASE_W * scale) / 2);
+  const top = Math.max(0, (h - BASE_H * scale) / 2);
+  canvas.style.position = "absolute";
+  canvas.style.left = `${left}px`;
+  canvas.style.top = `${top}px`;
+}
+
+window.addEventListener("resize", applyCanvasScale);
 
 function nowClock(){
   return new Date().toLocaleTimeString("it-IT",{hour12:false});
@@ -696,6 +715,10 @@ function startLiveClock(){
     }
   }, 250);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  applyCanvasScale();
+});
 
 function trackArrivals(results){
   let newArrivals = 0;
