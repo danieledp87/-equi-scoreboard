@@ -168,7 +168,14 @@ function renderCurrentBox(live, starting){
     timeStr = "—";
   }else if(live.state === "running"){
     const t = timingCurrentSeconds();
-    timeStr = (t === null) ? fmtLiveElapsedSeconds(live.start_time, nowS) : `${t.toFixed(2)} s`;
+    if(t === null){
+      timeStr = "—";
+      setStateClass($("currentTime"), "idle");
+    }else if(phaseWindowActive()){
+      timeStr = `${t.toFixed(2)} s`; // show centesimi durante la finestra di fase
+    }else{
+      timeStr = `${Math.floor(t)} s`; // solo secondi durante il running normale
+    }
   }else{
     timeStr = fmtLiveTime(live.finish_time);
   }
@@ -607,6 +614,12 @@ function timingCurrentSeconds(){
   return Math.max(0, integrated);
 }
 
+function phaseWindowActive(){
+  const lt = state.liveTiming;
+  if(!lt.phaseWindowUntil) return false;
+  return nowMono() <= lt.phaseWindowUntil;
+}
+
 // ---- Finish ETA helpers ----
 function detectStartTime(pick){
   if(state.finishStartTime) return;
@@ -683,6 +696,11 @@ function applyTimingEvents(live){
     timingReset();
   }
 
+  // prevent false running when no start has been received client-side
+  if(live.state === "running" && state.liveTiming.t0Site === null){
+    live.state = "idle";
+  }
+
   // stale anchors safeguard: if running and no anchor >7s, suspend integration to avoid drift
   if(live.state === "running"){
     const lt = state.liveTiming;
@@ -706,11 +724,18 @@ function startLiveClock(){
     if(!available) return;
     if(live.state === "running"){
       const t = timingCurrentSeconds();
-      const timeStr = (t === null) ? fmtLiveElapsedSeconds(live.start_time, nowS) : `${t.toFixed(2)} s`;
       const el = $("currentTime");
       if(el){
-        el.textContent = timeStr;
-        setStateClass(el, "running");
+        if(t === null){
+          el.textContent = "—";
+          setStateClass(el, "idle");
+        }else if(phaseWindowActive()){
+          el.textContent = `${t.toFixed(2)} s`;
+          setStateClass(el, "running");
+        }else{
+          el.textContent = `${Math.floor(t)} s`;
+          setStateClass(el, "running");
+        }
       }
     }
   }, 250);
