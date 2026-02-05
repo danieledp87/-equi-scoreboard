@@ -363,7 +363,13 @@ body.setup-open #bg{opacity:0.35;}
 .currentKv .metric{display:flex;align-items:baseline;gap:10px;}
 .currentLabel{font-size:clamp(24px,2.1vw,34px);font-weight:950;letter-spacing:.2px;line-height:1;}
 .currentBox .livePenalty,
-.currentBox .liveState{font-size:clamp(48px,4.2vw,68px);font-weight:950;line-height:1.05;}
+.currentBox .liveState,
+.currentKv .livePenalty,
+.currentKv .liveState{
+  font-size:clamp(56px,5vw,82px);
+  font-weight:950;
+  line-height:1.05;
+}
 
 #currentRank{color:#ffb347;}
 

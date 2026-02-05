@@ -135,6 +135,7 @@ function renderCurrentBox(live, starting){
   const errorStale = state.liveErrorAt && (nowMs - state.liveErrorAt) < state.liveGraceMs;
   const hbStale = !live || (live.last_heartbeat && (nowS - live.last_heartbeat) > (HEARTBEAT_TTL || 60));
   const available = live && live.available && !hbStale && !fetchStale && !errorStale;
+  const hasFinish = live && live.finish_time !== undefined && live.finish_time !== null;
   const fallbackMsg = available ? null : "Dati live non disponibili";
 
   const setRiderHorse = (bib, riderEl, horseEl, flagEl, bibEl) => {
@@ -159,7 +160,7 @@ function renderCurrentBox(live, starting){
 
   // CURRENT box
   setRiderHorse(bib, $("currentRider"), $("currentHorse"), $("currentFlag"), $("currentBib"));
-  $("currentRank").textContent = available && live.rank ? `Rank ${live.rank}` : "—";
+  $("currentRank").textContent = (available || hasFinish) && live && live.rank != null ? `Rank ${live.rank}` : "—";
   $("currentScore").textContent = penalty;
   setPenaltyClass($("currentScore"), penalty);
 
