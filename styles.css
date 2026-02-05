@@ -838,13 +838,14 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
     padding: 7px 12px;
   }
 
-  /* Improved row layout for mobile */
+  /* Improved row layout for mobile - desktop-like alignment */
   .row {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 12px 14px;
-    position: relative;
+    display: grid;
+    grid-template-columns: 50px 35px 1fr;
+    grid-template-rows: auto auto;
+    gap: 6px 10px;
+    padding: 12px 10px;
+    align-items: center;
   }
 
   .row.last::before {
@@ -854,33 +855,29 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
     padding: 3px 6px;
   }
 
-  /* Position number at top left */
+  /* Position number in first column */
   .pos {
-    position: absolute;
-    top: 12px;
-    left: 14px;
-    font-size: 16px;
+    grid-column: 1;
+    grid-row: 1 / 3;
+    font-size: 17px;
     font-weight: 950;
-    color: rgba(255,255,255,.75);
+    color: rgba(255,255,255,.85);
+    text-align: right;
+    align-self: center;
   }
 
-  /* Name section with flag inline */
-  .name {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding-left: 40px;
-    min-width: 0;
-  }
-
+  /* Flag in second column */
   .flag {
-    width: 28px;
-    height: 20px;
-    display: inline-block;
-    margin-right: 8px;
-    vertical-align: middle;
-    position: relative;
-    top: -1px;
+    grid-column: 2;
+    grid-row: 1 / 3;
+    width: 32px;
+    height: 22px;
+    display: block;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,.28);
+    background: rgba(255,255,255,.12);
+    align-self: center;
+    justify-self: center;
   }
 
   .flagIcon {
@@ -889,38 +886,51 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
     margin-right: 8px;
   }
 
+  /* Name section spans third column, first row */
+  .name {
+    grid-column: 3;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
   .riderLine {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 900;
     line-height: 1.2;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .riderLine .small {
-    font-size: 13px;
+    font-size: 12px;
     color: rgba(255,255,255,.65);
     font-weight: 800;
+    margin-left: 6px;
   }
 
   .horseLine {
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1.2;
     color: rgba(255,255,255,.75);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  /* Score and time in a row */
-  .score, .time {
-    font-size: 15px;
-    text-align: left;
-    padding-left: 40px;
-  }
-
+  /* Score and time in third column, second row - side by side */
   .score {
-    display: flex;
-    gap: 8px;
+    grid-column: 3;
+    grid-row: 2;
+    font-size: 14px;
+    text-align: left;
+    display: inline-flex;
+    gap: 6px;
     align-items: baseline;
+    margin-right: 12px;
   }
 
   .score > div:first-child {
@@ -928,9 +938,13 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   }
 
   .time {
-    margin-top: -4px;
-    font-weight: 800;
+    grid-column: 3;
+    grid-row: 2;
+    font-size: 14px;
+    font-weight: 900;
     color: rgba(255,255,255,.85);
+    text-align: right;
+    justify-self: end;
   }
 
   .statMini {
@@ -938,6 +952,17 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
     padding: 12px 8px;
     min-height: 75px;
     border-radius: 12px;
+  }
+
+  /* Fix for TOTAL stat with progress bar */
+  .statMini.total {
+    padding-bottom: 22px;
+    min-height: 85px;
+  }
+
+  .statMini.total::after {
+    bottom: 8px;
+    height: 10px;
   }
 
   .statMini .label {
@@ -1070,14 +1095,28 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   }
 
   .row {
-    padding: 10px 12px;
+    padding: 10px 8px;
+    gap: 4px 8px;
   }
 
-  .riderLine {
+  .pos {
     font-size: 15px;
   }
 
+  .flag {
+    width: 28px;
+    height: 20px;
+  }
+
+  .riderLine {
+    font-size: 14px;
+  }
+
   .horseLine {
+    font-size: 12px;
+  }
+
+  .score, .time {
     font-size: 13px;
   }
 }
@@ -1170,28 +1209,45 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   }
 
   .row {
-    padding: 10px 12px;
+    padding: 10px 8px;
+    grid-template-columns: 45px 32px 1fr;
+    gap: 5px 8px;
   }
 
-  .name {
-    padding-left: 35px;
+  .pos {
+    font-size: 16px;
   }
 
-  .score, .time {
-    padding-left: 35px;
+  .flag {
+    width: 30px;
+    height: 21px;
   }
 
   .riderLine {
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .horseLine {
+    font-size: 12px;
+  }
+
+  .score {
+    font-size: 13px;
+    margin-right: 10px;
+  }
+
+  .time {
     font-size: 13px;
   }
 
   .statMini {
     padding: 10px 6px;
     min-height: 70px;
+  }
+
+  .statMini.total {
+    padding-bottom: 20px;
+    min-height: 80px;
   }
 
   .statMini .label {
