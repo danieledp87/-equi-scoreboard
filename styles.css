@@ -373,7 +373,15 @@ body.setup-open #bg{opacity:0.35;}
 
 #currentRank{color:#ffb347;}
 
-.gridFinal{height:100%;display:block}
+.gridFinal{
+  height:100%;
+  display:block;
+}
+
+.gridFinal ~ .bottomStats{
+  display:none !important;
+}
+
 .column{height:100%}
 
 /* flag icons in LAST/NEXT */
@@ -468,10 +476,28 @@ body.setup-open #bg{opacity:0.35;}
   box-shadow:inset 0 1px 2px rgba(0,0,0,.35);
 }
 
-/* final results: single panel, two columns with only a small gap */
-.finalPanel{height:100%}
-.finalTwoCols{height:calc(100% - 44px);display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.finalTwoCols .rows{height:100%;overflow:hidden}
+/* final results: single panel, adaptive columns */
+.finalPanel{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+}
+
+.finalTwoCols{
+  flex:1;
+  min-height:0;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:clamp(12px, 1.5vw, 24px);
+  padding:clamp(8px, 1vw, 16px);
+}
+
+.finalTwoCols .rows{
+  height:100%;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
 .finalTwoCols .divider{display:none}
 
 /* setup */
@@ -623,6 +649,22 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
     font-size: 32px;
   }
 
+  /* Final results optimizations for large screens */
+  .finalTwoCols {
+    gap: 24px;
+    padding: 20px;
+  }
+
+  .finalTwoCols .rows {
+    border-right: 1px solid var(--stroke);
+    padding-right: 12px;
+  }
+
+  .finalTwoCols .rows:last-child {
+    border-right: none;
+    padding-right: 0;
+  }
+
   /* Setup card optimizations for large displays */
   .setupCard {
     width: min(1000px, 85vw);
@@ -750,9 +792,24 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   .statMini .value {
     font-size: clamp(20px, 1.8vw, 32px);
   }
+
+  /* Final results optimizations */
+  .finalTwoCols {
+    gap: 14px;
+    padding: 12px;
+  }
+
+  .finalTwoCols .rows {
+    overflow-y: auto;
+  }
+
+  .row {
+    padding: 10px 14px;
+    gap: 10px;
+  }
 }
 
-/* TABLET RESPONSIVE */
+/* TABLET PORTRAIT & LANDSCAPE (769px - 1024px) */
 @media (max-width: 1024px) and (min-width: 769px) {
   .setup {
     padding: 16px;
@@ -774,10 +831,112 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   button {
     font-size: 15px;
   }
+
+  /* Final results - keep two columns but optimized for tablet */
+  .finalTwoCols {
+    gap: 12px;
+    padding: 10px;
+  }
+
+  .finalPanel {
+    min-height: 0;
+  }
+
+  .row {
+    padding: 10px 12px;
+    gap: 10px;
+    grid-template-columns: 60px 48px 1fr 140px 100px;
+  }
+
+  .pos {
+    font-size: clamp(16px, 1.5vw, 24px);
+  }
+
+  .riderLine {
+    font-size: clamp(15px, 1.4vw, 22px);
+  }
+
+  .horseLine {
+    font-size: clamp(13px, 1.2vw, 18px);
+  }
+
+  .score, .time {
+    font-size: clamp(14px, 1.4vw, 22px);
+  }
 }
 
-/* MOBILE RESPONSIVE */
-@media (max-width: 768px) {
+/* TABLET SMALL (481px - 768px) */
+@media (max-width: 768px) and (min-width: 481px) {
+  body {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .canvas {
+    width: 100vw;
+    height: auto;
+    min-height: 100vh;
+    transform: none !important;
+    position: relative;
+    left: 0;
+    top: 0;
+  }
+
+  /* Final results - adaptive for tablets */
+  .gridFinal {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .finalPanel {
+    height: auto;
+    min-height: 0;
+  }
+
+  /* Portrait: single column, Landscape: two columns */
+  .finalTwoCols {
+    display: block;
+    padding: 12px;
+    gap: 0;
+  }
+
+  @media (orientation: landscape) {
+    .finalTwoCols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .finalTwoCols .rows {
+      margin-bottom: 0;
+      max-height: calc(100vh - 200px);
+    }
+  }
+
+  .finalTwoCols .rows {
+    margin-bottom: 20px;
+    max-height: 600px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .finalTwoCols .rows:last-child {
+    margin-bottom: 0;
+  }
+
+  .panelHeader {
+    padding: 12px 14px;
+    font-size: 15px;
+  }
+
+  .row {
+    padding: 12px 14px;
+    gap: 8px 12px;
+  }
+}
+
+/* MOBILE RESPONSIVE (max 480px) */
+@media (max-width: 480px) {
   body{
     overflow:auto;
     -webkit-overflow-scrolling: touch;
@@ -1158,26 +1317,34 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   /* Final results layout for mobile */
   .gridFinal {
     height: auto;
-    min-height: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
   .finalPanel {
     height: auto;
-    min-height: 400px;
+    min-height: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 
   .finalTwoCols {
     display: block;
     height: auto;
+    flex: 1;
+    padding: 8px;
   }
 
   .finalTwoCols .rows {
     height: auto;
     max-height: none;
     overflow-y: visible;
+    margin-bottom: 16px;
   }
 
-  .finalTwoCols .rows:first-child {
+  .finalTwoCols .rows:last-child {
     margin-bottom: 0;
   }
 
@@ -1267,6 +1434,20 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   .gridLive .rows {
     max-height: 300px;
     min-height: 150px;
+  }
+
+  /* Final results in landscape - use two slim columns */
+  .finalTwoCols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 8px;
+  }
+
+  .finalTwoCols .rows {
+    max-height: 350px;
+    overflow-y: auto;
+    margin-bottom: 0;
   }
 
   .row {
