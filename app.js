@@ -40,6 +40,7 @@ const state = {
   liveErrorAt: 0,
   livePollHandle: null,
   liveClockHandle: null,
+  lastFinish: null,          // {bib, rank, time, penalty}
   // Live timing integration (chrono/monotonic anchors)
   liveTiming: {
     bib: null,
@@ -154,13 +155,16 @@ function renderCurrentBox(live, starting){
     if(bibEl) bibEl.textContent = bib ? `(${bib})` : "";
   };
 
-  const bib = available ? live.current_bib : null;
-  const penalty = available ? fmtPenaltyLive(live.penalty) : "—";
+  const bib = available ? live.current_bib : (state.lastFinish?.bib || null);
+  const penalty = available ? fmtPenaltyLive(live.penalty) : (state.lastFinish?.penalty ?? "—");
   const stateLabel = available ? (live.state || "idle").toUpperCase() : "N/D";
 
   // CURRENT box
   setRiderHorse(bib, $("currentRider"), $("currentHorse"), $("currentFlag"), $("currentBib"));
-  $("currentRank").textContent = (available || hasFinish) && live && live.rank != null ? `Rank ${live.rank}` : "—";
+  const rankVal = (available && live && live.rank != null)
+    ? live.rank
+    : (state.lastFinish?.rank ?? null);
+  $("currentRank").textContent = rankVal != null ? `Rank ${rankVal}` : "—";
   $("currentScore").textContent = penalty;
   setPenaltyClass($("currentScore"), penalty);
 
@@ -695,6 +699,7 @@ function applyTimingEvents(live){
   const curBib = live.current_bib;
   if(state.liveTiming.bib && curBib && state.liveTiming.bib !== curBib){
     timingReset();
+    state.lastFinish = null;
   }
 
   // prevent false running when no start has been received client-side
@@ -709,6 +714,16 @@ function applyTimingEvents(live){
     if(lt.lastAnchorMono && (nowM - lt.lastAnchorMono) > 7){
       lt.t0Site = null; // disables timer until next start/anchor
     }
+  }
+
+  // capture last finish snapshot to keep rank/time visible until next bib
+  if(live.state === "finished" && live.finish_time != null){
+    state.lastFinish = {
+      bib: live.current_bib,
+      rank: live.rank,
+      time: live.finish_time,
+      penalty: live.penalty,
+    };
   }
 }
 

@@ -366,7 +366,7 @@ body.setup-open #bg{opacity:0.35;}
 .currentBox .liveState,
 .currentKv .livePenalty,
 .currentKv .liveState{
-  font-size:clamp(56px,5vw,82px);
+  font-size:clamp(72px,6vw,120px);
   font-weight:950;
   line-height:1.05;
 }
