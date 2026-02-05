@@ -496,12 +496,14 @@ body.setup-open #bg{opacity:0.35;}
 }
 
 .setupCard{
-  position:relative;         /* <-- aggiungi */
-  width:min(760px,96vw);
+  position:relative;
+  width:min(800px,92vw);
+  max-width: 95vw;
   border:1px solid var(--stroke);
-  background:rgba(8,14,28,.78);
+  background:rgba(8,14,28,.85);
+  backdrop-filter: blur(12px);
   border-radius:14px;
-  padding:16px;
+  padding:24px;
   box-shadow:0 18px 40px rgba(0,0,0,.45);
 }
 
@@ -575,6 +577,179 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   border-color:var(--stroke2);
   color:var(--accent);
   background:rgba(0,190,255,.12);
+}
+
+/* DESKTOP LARGE (2K and above) */
+@media (min-width: 2560px) {
+  .canvas {
+    --canvas-scale: 1.3;
+  }
+
+  .classNo {
+    font-size: 80px;
+  }
+
+  .className {
+    font-size: 44px;
+  }
+
+  .subtitle {
+    font-size: 22px;
+  }
+
+  .badge {
+    font-size: 24px;
+    padding: 14px 20px;
+  }
+
+  .panelHeader, .boxHeader {
+    font-size: 20px;
+    padding: 16px 18px;
+  }
+
+  .riderLine {
+    font-size: 28px;
+  }
+
+  .horseLine {
+    font-size: 24px;
+  }
+
+  .score, .time {
+    font-size: 30px;
+  }
+
+  .pos {
+    font-size: 32px;
+  }
+
+  /* Setup card optimizations for large displays */
+  .setupCard {
+    width: min(1000px, 85vw);
+    padding: 32px;
+  }
+
+  .setupCard h2 {
+    font-size: 26px;
+    margin-bottom: 18px;
+  }
+
+  .grid {
+    gap: 16px;
+  }
+
+  label {
+    font-size: 16px;
+  }
+
+  input, select {
+    font-size: 18px;
+    padding: 14px 16px;
+  }
+
+  button {
+    font-size: 18px;
+    padding: 14px 18px;
+  }
+}
+
+/* DESKTOP MEDIUM-LARGE (1920px - 2559px) */
+@media (min-width: 1920px) and (max-width: 2559px) {
+  /* Base 1920x1080 - default styles apply */
+  .canvas {
+    --canvas-scale: 1;
+  }
+}
+
+/* DESKTOP STANDARD (1600px - 1919px) */
+@media (min-width: 1600px) and (max-width: 1919px) {
+  .canvas {
+    --canvas-scale: 0.85;
+  }
+}
+
+/* DESKTOP SMALL (1366px - 1599px) */
+@media (min-width: 1366px) and (max-width: 1599px) {
+  .canvas {
+    --canvas-scale: 0.72;
+  }
+
+  .setupCard {
+    width: min(720px, 90vw);
+    padding: 22px;
+  }
+
+  .setupCard h2 {
+    font-size: 20px;
+  }
+
+  input, select {
+    font-size: 15px;
+  }
+
+  button {
+    font-size: 15px;
+  }
+}
+
+/* DESKTOP EXTRA SMALL / LARGE TABLET (1025px - 1365px) */
+@media (min-width: 1025px) and (max-width: 1365px) {
+  .canvas {
+    --canvas-scale: 0.6;
+  }
+
+  body {
+    overflow: auto;
+  }
+
+  /* Optimize for smaller desktop displays */
+  .topbar {
+    padding: 1.2% 1.8%;
+  }
+
+  .badges {
+    gap: 8px;
+  }
+
+  .badge {
+    padding: 10px 14px;
+    font-size: clamp(13px, 1.15vw, 18px);
+  }
+
+  .main {
+    padding: 0.8% 1.6% 0.12% 1.6%;
+  }
+
+  .gridLive {
+    grid-template-columns: 60% 40%;
+    gap: 1.2%;
+  }
+
+  .row {
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .panelHeader, .boxHeader {
+    padding: 10px 12px;
+    font-size: clamp(13px, 1.1vw, 16px);
+  }
+
+  .boxBody {
+    padding: 10px 12px;
+  }
+
+  .statMini {
+    padding: 10px;
+  }
+
+  .statMini .label {
+    font-size: clamp(12px, 1vw, 15px);
+  }
+
+  .statMini .value {
+    font-size: clamp(20px, 1.8vw, 32px);
+  }
 }
 
 /* TABLET RESPONSIVE */

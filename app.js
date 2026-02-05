@@ -1363,19 +1363,16 @@ showSetup();
     startLiveClock();  // lightweight local chrono refresher
   });
 
-  function forceReload(){
-    // force a full reload (like Cmd/Ctrl+R) with cache-busting param
-    const url = `${window.location.origin}${window.location.pathname}?rnd=${Date.now()}`;
-    window.location.assign(url);
-  }
-
-  // floating button to reopen setup
-  const openBtn = $("openSetup");
-  if(openBtn){
-    openBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      forceReload();
-    });
-  }
+  // Setup toggle buttons - reopen setup overlay without reload
+  const openBtns = document.querySelectorAll("#openSetup, .setupToggle");
+  openBtns.forEach(btn => {
+    if(btn){
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        fillSetup(); // refresh values from current state
+        showSetup();
+      });
+    }
+  });
 
 });
