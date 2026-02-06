@@ -478,13 +478,37 @@ function renderHeader(meta, mode){
   setBadge(mode);
 }
 
+// Normalizza i valori delle penalità per confronti affidabili
+function normalizeFaults(faults){
+  const s = safeStr(faults).trim();
+  if(!s) return "0";
+  // Gestisce formati: "0", "0.0", "0/0", "4", "4.0", "4/0", ecc.
+  if(s.toLowerCase() === "elim" || s.toLowerCase() === "rit" || s.toLowerCase() === "np") return s.toLowerCase();
+  // Estrae solo il numero principale dalle penalità (es. "4/0" -> "4")
+  const match = s.match(/^(\d+\.?\d*)/);
+  if(match){
+    const num = parseFloat(match[1]);
+    return num === 0 ? "0" : num.toString();
+  }
+  return s; // mantieni formato originale se non riconosciuto
+}
+
+// Normalizza il tempo per confronti affidabili
+function normalizeTime(time){
+  const s = safeStr(time).trim();
+  if(!s) return "";
+  const n = parseFloat(s);
+  return Number.isFinite(n) ? n.toFixed(2) : s;
+}
+
 function snapshotTimes(results){
   state.lastSnapshot.clear();
   for(const r of results){
-    // Salva sia tempo che penalità per rilevare solo cambiamenti reali
+    // Salva tempo e penalità NORMALIZZATI per confronti affidabili
     state.lastSnapshot.set(r.head_number, {
-      time: safeStr(r.time).trim(),
-      faults: safeStr(r.faults).trim()
+      time: normalizeTime(r.time),
+      faults: normalizeFaults(r.faults),
+      updated: Number(r.updated || 0)
     });
   }
 }
@@ -492,25 +516,36 @@ function rowKey(r){
   return r?.id ?? `${r?.head_number||""}-${r?.updated||""}-${r?.time||""}`;
 }
 function computeLastByDelta(results){
+  const newResults = [];      // risultati completamente nuovi
+  const modifiedResults = [];  // risultati con dati modificati
+
   for(const r of results){
     const hn = r.head_number;
     const prev = state.lastSnapshot.get(hn);
-    const curTime = safeStr(r.time).trim();
-    const curFaults = safeStr(r.faults).trim();
+    const curTime = normalizeTime(r.time);
+    const curFaults = normalizeFaults(r.faults);
 
-    // Rileva come LAST solo se:
-    // 1. È un nuovo risultato (non era nello snapshot)
-    // 2. O se tempo/penalità sono cambiati rispetto allo snapshot
     if(!prev){
-      // Nuovo risultato: è LAST solo se ha un tempo
-      if(curTime) return r;
+      // Nuovo risultato: aggiungilo solo se ha un tempo
+      if(curTime) newResults.push(r);
     }else{
-      // Risultato esistente: è LAST solo se tempo o penalità sono cambiati
+      // Risultato esistente: verifica se tempo o penalità sono cambiati
       if(prev.time !== curTime || prev.faults !== curFaults){
-        return r;
+        modifiedResults.push(r);
       }
     }
   }
+
+  // Priorità 1: Risultati NUOVI (ordina per updated più recente)
+  if(newResults.length > 0){
+    return newResults.sort((a,b) => Number(b.updated||0) - Number(a.updated||0))[0];
+  }
+
+  // Priorità 2: Risultati MODIFICATI (ordina per updated più recente)
+  if(modifiedResults.length > 0){
+    return modifiedResults.sort((a,b) => Number(b.updated||0) - Number(a.updated||0))[0];
+  }
+
   return null;
 }
 function computeLastFallback(results){
