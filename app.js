@@ -233,7 +233,7 @@ function isPointsClass(meta, standings){
 
 // Available flag files (lowercase, without extension) taken from assets/flags
 const FLAG_CODES = [
-  "afg","aho","alb","alg","and","ang","ant","arg","arm","aru","asa","aus","aut","aze","bah","ban","bar","bdi","bel","ben","ber","bhu","bih","biz","blr","bol","bot","bra","brn","bru","bul","bur","caf","cam","can","cay","cgo","cha","chi","chn","civ","cmr","cod","cok","col","com","cpv","crc","cro","cub","cyp","cze","dan","den","dji","dma","dom","ecu","egy","eri","esa","esp","est","eth","fij","fin","fra","fsm","gab","gam","gbr","gbs","geo","geq","ger","gha","gre","grn","gua","gui","gum","guy","hai","hkg","hon","hun","ina","ind","ira","ire","iri","irl","irq","isl","isr","isv","ita","ivb","jam","jor","jpn","kaz","ken","kgz","kir","kor","kos","ksa","kuw","lao","lat","lba","lbn","lbr","lca","les","lib","lie","ltu","lux","mac","macau","mad","mar","mas","maw","mda","mdv","mex","mgl","mhl","mkd","mli","mlt","mne","mon","moz","mri","mtn","mya","nam","nca","ned","nep","ngr","nig","nor","nru","nzl","oma","pak","pan","par","per","phi","phy","ple","plw","png","pol","por","prk","pur","qat","rou","rsa","rsm","rus","rwa","sam","sen","sey","sgp","sin","skn","sle","slo","smr","sol","som","spa","srb","sri","stp","sud","sui","sur","svk","swe","swz","syr","taiwan","tan","tga","tha","tjk","tkm","tls","tog","tpe","tri","tto","tun","tur","tuv","twn","uae","uga","ukr","uru","usa","uzb","van","ven","vie","vin","yem","zam","zim"
+  "afg","aho","alb","alg","and","ang","ant","arg","arm","aru","asa","aus","aut","aze","bah","ban","bar","bdi","bel","ben","ber","bhu","bih","biz","blr","bol","bot","bra","brn","bru","bul","bur","caf","cam","can","cay","cgo","cha","chi","chn","civ","cmr","cod","cok","col","com","cpv","crc","cro","cub","cyp","cze","dan","den","dji","dma","dom","ecu","egy","eri","esa","esp","est","eth","fij","fin","fra","fsm","gab","gam","gbr","gbs","geo","geq","ger","gha","gre","grn","gua","gui","gum","guy","hai","hkg","hon","hun","ina","ind","ira","ire","iri","irl","irq","isl","isr","isv","ita","ivb","jam","jor","jpn","kaz","ken","kgz","kir","kor","kos","ksa","kuw","lao","lat","lba","lbn","lbr","lca","les","lib","lie","ltu","lux","mac","macau","mad","mar","mas","maw","mda","mdv","mex","mgl","mhl","mkd","mli","mlt","mne","mon","moz","mri","mtn","mya","nam","nca","ned","nep","ngr","nig","nor","nru","nzl","oma","pak","pan","par","per","phi","phy","ple","plw","png","pol","por","prk","pur","qat","rom","rou","rsa","rsm","rus","rwa","sam","sen","sey","sgp","sin","skn","sle","slo","smr","sol","som","spa","srb","sri","stp","sud","sui","sur","svk","swe","swz","syr","taiwan","tan","tga","tha","tjk","tkm","tls","tog","tpe","tri","tto","tun","tur","tuv","twn","uae","uga","ukr","uru","usa","uzb","van","ven","vie","vin","yem","zam","zim"
 ];
 const ISO3_TO_FILE = FLAG_CODES.reduce((m,c)=>{ m[c.toUpperCase()] = c; return m; }, {});
 const FLAG_SET = new Set(FLAG_CODES);
@@ -251,6 +251,7 @@ const FLAG_ALIASES = {
   UAE:"uae", KSA:"ksa", QAT:"qat",
   HKG:"hkg", MAC:"mac", TPE:"tpe",
   RSA:"rsa", ZAF:"rsa",
+  ROM:"rom", ROU:"rou",  // Romania: both ROM (old IOC) and ROU (ISO-3)
 };
 const ISO2_TO_ISO3 = { GR:"GRE", EL:"GRE", UK:"GBR", GB:"GBR" };
 const COUNTRY_NAME_TO_CODE = {
