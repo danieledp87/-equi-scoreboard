@@ -211,16 +211,22 @@ body.setup-open #bg{opacity:0.35;}
   color:rgba(255,255,255,.86)
 }
 
-.rows{height:calc(100% - 44px);overflow:hidden}
+.rows{
+  height:calc(100% - 44px);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
 
 .row{
   display:grid;
   grid-template-columns:90px 65px 1fr 160px 120px;
   gap:14px;
   align-items:center;
-  padding:14px 18px;
+  padding:16px 18px;
   border-bottom:1px solid rgba(255,255,255,.06);
   background:rgba(0,0,0,.08);
+  min-height:fit-content;
 }
 
 .row:nth-child(2n){background:rgba(0,0,0,.12)}
@@ -471,7 +477,12 @@ body.setup-open #bg{opacity:0.35;}
 /* final results: single panel, two columns with only a small gap */
 .finalPanel{height:100%}
 .finalTwoCols{height:calc(100% - 44px);display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.finalTwoCols .rows{height:100%;overflow:hidden}
+.finalTwoCols .rows{
+  height:100%;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
 .finalTwoCols .divider{display:none}
 
 /* setup */

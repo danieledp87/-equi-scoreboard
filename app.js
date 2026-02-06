@@ -1003,11 +1003,12 @@ function rowsThatFit(containerId, sample){
   const rect = el.getBoundingClientRect();
   if(rect.height < 80) return 10;
   const rh = measureRowHeight(el, sample);
-  // try to pack one more row if there's meaningful leftover space
-  const usable = rect.height - 6; // smaller margin to reclaim room
+  // Conservative approach: only fit rows that are guaranteed to be fully visible
+  const usable = rect.height - 20; // larger safety margin to prevent truncation
   let fit = Math.floor(usable / rh);
+  // Only add extra row if there's at least 90% of space (almost a full row)
   const leftover = usable - fit * rh;
-  if(leftover > rh * 0.35) fit += 1; // allow an extra row if >35% space remains
+  if(leftover > rh * 0.90) fit += 1;
   return Math.max(1, fit);
 }
 
