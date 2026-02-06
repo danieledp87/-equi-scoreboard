@@ -215,7 +215,7 @@ body.setup-open #bg{opacity:0.35;}
 
 .row{
   display:grid;
-  grid-template-columns:80px 54px 1fr 150px 110px;
+  grid-template-columns:90px 65px 1fr 160px 120px;
   gap:14px;
   align-items:center;
   padding:14px 18px;
@@ -256,11 +256,11 @@ body.setup-open #bg{opacity:0.35;}
   to{opacity:1;transform:translateX(0);}
 }
 
-.pos{font-weight:950;text-align:right;font-size:clamp(18px,1.6vw,28px)}
+.pos{font-weight:950;text-align:right;font-size:clamp(24px,2vw,36px)}
 
 .flag{
-  width:40px;
-  height:28px;
+  width:52px;
+  height:36px;
   border-radius:4px;
   border:1px solid rgba(255,255,255,.28);
   background:rgba(255,255,255,.12);
@@ -277,7 +277,7 @@ body.setup-open #bg{opacity:0.35;}
 
 .riderLine{
   font-weight:900;
-  font-size:clamp(16px,1.5vw,24px);
+  font-size:clamp(20px,1.85vw,30px);
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
@@ -285,7 +285,7 @@ body.setup-open #bg{opacity:0.35;}
 }
 
 .horseLine{
-  font-size:clamp(14px,1.25vw,20px);
+  font-size:clamp(17px,1.5vw,25px);
   color:var(--muted);
   white-space:nowrap;
   overflow:hidden;
@@ -294,9 +294,9 @@ body.setup-open #bg{opacity:0.35;}
   font-weight:750
 }
 
-.score,.time{text-align:right;font-weight:950;font-size:clamp(16px,1.6vw,26px)}
-.score{text-align:right;font-weight:950;font-size:clamp(16px,1.6vw,26px)}
-.small{font-size:clamp(12px,1.05vw,15px);color:var(--muted);font-weight:850}
+.score,.time{text-align:right;font-weight:950;font-size:clamp(20px,1.9vw,32px)}
+.score{text-align:right;font-weight:950;font-size:clamp(20px,1.9vw,32px)}
+.small{font-size:clamp(14px,1.25vw,19px);color:var(--muted);font-weight:850}
 
 .gridLive{
   height:100%;
@@ -608,19 +608,19 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   }
 
   .riderLine {
-    font-size: 28px;
+    font-size: 35px;
   }
 
   .horseLine {
-    font-size: 24px;
-  }
-
-  .score, .time {
     font-size: 30px;
   }
 
+  .score, .time {
+    font-size: 38px;
+  }
+
   .pos {
-    font-size: 32px;
+    font-size: 42px;
   }
 
   /* Setup card optimizations for large displays */
