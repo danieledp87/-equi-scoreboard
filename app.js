@@ -481,7 +481,11 @@ function renderHeader(meta, mode){
 function snapshotTimes(results){
   state.lastSnapshot.clear();
   for(const r of results){
-    state.lastSnapshot.set(r.head_number, safeStr(r.time).trim());
+    // Salva sia tempo che penalità per rilevare solo cambiamenti reali
+    state.lastSnapshot.set(r.head_number, {
+      time: safeStr(r.time).trim(),
+      faults: safeStr(r.faults).trim()
+    });
   }
 }
 function rowKey(r){
@@ -490,9 +494,22 @@ function rowKey(r){
 function computeLastByDelta(results){
   for(const r of results){
     const hn = r.head_number;
-    const prev = state.lastSnapshot.get(hn) || "";
-    const cur = safeStr(r.time).trim();
-    if(!prev && cur) return r;
+    const prev = state.lastSnapshot.get(hn);
+    const curTime = safeStr(r.time).trim();
+    const curFaults = safeStr(r.faults).trim();
+
+    // Rileva come LAST solo se:
+    // 1. È un nuovo risultato (non era nello snapshot)
+    // 2. O se tempo/penalità sono cambiati rispetto allo snapshot
+    if(!prev){
+      // Nuovo risultato: è LAST solo se ha un tempo
+      if(curTime) return r;
+    }else{
+      // Risultato esistente: è LAST solo se tempo o penalità sono cambiati
+      if(prev.time !== curTime || prev.faults !== curFaults){
+        return r;
+      }
+    }
   }
   return null;
 }
