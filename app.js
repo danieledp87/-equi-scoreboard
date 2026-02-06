@@ -30,7 +30,7 @@ const state = {
   pageKey: "",
   firstPageMs: 20000,
   nextPagesMs: 10000,
-  refreshMs: 2000,
+  refreshMs: 1000,  // 1 secondo - aggiornamento classifica più frequente
   livePollMs: 500,
   liveGraceMs: 3000,
   lastSnapshot: new Map(), // head_number -> time
