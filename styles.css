@@ -1203,8 +1203,9 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
 
   .finalTwoCols .rows {
     height: auto;
-    max-height: none;
-    overflow-y: visible;
+    max-height: 500px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .finalTwoCols .rows:first-child {

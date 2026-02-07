@@ -1245,17 +1245,24 @@ function renderFinal(standings, totalDone, totalAll, pageKey){
   $("layoutFinal").style.display = "";
 
   const sorted = standings.slice().sort((a,b)=>Number(a.ranking_position||9999)-Number(b.ranking_position||9999));
-  const perCol = rowsThatFit("rowsFinalLeft", sorted[0] || dummyRow());
-  const perPage = perCol * 2;
-  const pageCount = Math.max(1, Math.ceil(sorted.length / perPage));
-  advancePageIfDue(pageCount, pageKey);
-  state.page = state.page % pageCount;
-
-  const start = state.page * perPage;
-  const items = sorted.slice(start, start + perPage);
-
-  const left = items.slice(0, perCol);
-  const right = items.slice(perCol, perPage);
+  const isMobile = window.innerWidth <= 768;
+  let left, right;
+  if(isMobile){
+    // Mobile: tutti i risultati in una colonna, scroll manuale
+    left = sorted;
+    right = [];
+    state.page = 0;
+  }else{
+    const perCol = rowsThatFit("rowsFinalLeft", sorted[0] || dummyRow());
+    const perPage = perCol * 2;
+    const pageCount = Math.max(1, Math.ceil(sorted.length / perPage));
+    advancePageIfDue(pageCount, pageKey);
+    state.page = state.page % pageCount;
+    const start = state.page * perPage;
+    const items = sorted.slice(start, start + perPage);
+    left = items.slice(0, perCol);
+    right = items.slice(perCol, perPage);
+  }
   const animKey = `${pageKey}|${state.page}`;
   const shouldAnimate = state.lastAnimKey !== animKey;
 
