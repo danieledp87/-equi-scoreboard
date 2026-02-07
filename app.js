@@ -252,7 +252,7 @@ const FLAG_ALIASES = {
   UAE:"uae", KSA:"ksa", QAT:"qat",
   HKG:"hkg", MAC:"mac", TPE:"tpe",
   RSA:"rsa", ZAF:"rsa",
-  ROM:"rom", ROU:"rou",  // Romania: both ROM (old IOC) and ROU (ISO-3)
+  ROM:"rou", ROU:"rou",  // Romania: both ROM (old IOC) and ROU (ISO-3) → same file
 };
 const ISO2_TO_ISO3 = { GR:"GRE", EL:"GRE", UK:"GBR", GB:"GBR" };
 const COUNTRY_NAME_TO_CODE = {
