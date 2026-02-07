@@ -1186,11 +1186,15 @@ function renderLive(standings, last, next, totalDone, totalAll, isLive, pageKey)
     if(nextBoxEl) nextBoxEl.classList.remove("expanded");
     if(currentBoxEl) currentBoxEl.classList.remove("hidden");
     if(expandedList) expandedList.innerHTML = "";
+    $("nextTitle").textContent = "NEXT";
     renderCurrentBox(state.liveCurrent, state._startingList);
   }else{
     // --- Live NON attivo: nascondi CURRENT, espandi NEXT con rider aggiuntivi ---
     if(currentBoxEl) currentBoxEl.classList.add("hidden");
     if(nextBoxEl) nextBoxEl.classList.add("expanded");
+    $("nextTitle").textContent = "NEXT RIDERS";
+    const remaining = (totalAll || 0) - (totalDone || 0);
+    $("nextOrder").textContent = remaining > 0 ? `${remaining} to go` : "—";
 
     const starting = state._startingList || [];
     // Prendi i prossimi rider DOPO il primo (che è già nel NEXT singolo)
