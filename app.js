@@ -963,13 +963,23 @@ function computeFinishEta(totalDone, totalAll){
   return `${hh}:${mm}`;
 }
 
+function isBarrageClass(meta){
+  const n = (meta?.class_name || "").toUpperCase();
+  return n.includes("JUMP OFF") || n.includes("MISTA");
+}
+
 function buildRow(r, highlight=false){
   const row = document.createElement("div");
   row.className = "row" + (highlight ? " last" : "");
 
   const pos = document.createElement("div");
   pos.className = "pos";
-  const posLabel = safeStr(r.ranking_position_explained || r.ranking_position || "—").trim();
+  let posLabel = safeStr(r.ranking_position_explained || r.ranking_position || "—").trim();
+  // Mista/Jump Off: rider con faults esattamente "0" → ex aequo 1° posto
+  if(isBarrageClass(state._currentClassMeta)){
+    const f = safeStr(r.faults).trim();
+    if(f === "0") posLabel = "1";
+  }
   const upperPos = posLabel.toUpperCase();
   const isFC = upperPos.includes("F.C");
   const isElim = upperPos.includes("ELIM");
