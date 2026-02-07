@@ -447,7 +447,7 @@ body.setup-open #bg{opacity:0.35;}
 }
 
 .statMini .label{
-  font-size:clamp(14px,1.15vw,18px);
+  font-size:clamp(17px,1.4vw,22px);
   color:rgba(255,255,255,.82);
   font-weight:900;
   letter-spacing:.25px;
@@ -455,14 +455,14 @@ body.setup-open #bg{opacity:0.35;}
 }
 
 .statMini .value{
-  font-size:clamp(24px,2.1vw,36px);
+  font-size:clamp(28px,2.5vw,42px);
   font-weight:950;
   text-align:center;
   line-height:1.1
 }
 
 #statEta{
-  font-size:clamp(24px,2.1vw,36px);
+  font-size:clamp(28px,2.5vw,42px);
   line-height:1.2;
   word-break:break-word;
   white-space:normal;
