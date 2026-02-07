@@ -138,13 +138,18 @@ function setPenaltyClass(el, val){
   }
 }
 
-function renderCurrentBox(live, starting){
+function isLiveAvailable(){
+  const live = state.liveCurrent;
   const nowMs = Date.now();
   const nowS = nowMs / 1000;
   const fetchStale = (nowMs - (state.liveCurrentAt || 0)) > state.liveGraceMs;
   const errorStale = state.liveErrorAt && (nowMs - state.liveErrorAt) < state.liveGraceMs;
   const hbStale = !live || (live.last_heartbeat && (nowS - live.last_heartbeat) > (HEARTBEAT_TTL || 60));
-  const available = live && live.available && !hbStale && !fetchStale && !errorStale;
+  return !!(live && live.available && !hbStale && !fetchStale && !errorStale);
+}
+
+function renderCurrentBox(live, starting){
+  const available = isLiveAvailable();
   const hasFinish = live && live.finish_time !== undefined && live.finish_time !== null;
   const fallbackMsg = available ? null : "Dati live non disponibili";
 
@@ -557,6 +562,14 @@ function computeNext(starting, results){
     .slice()
     .sort((a,b)=>Number(a.entry_order||0)-Number(b.entry_order||0))
     .find(e => !finished.has(e.head_number) && e.not_in_competition === false) || null;
+}
+function computeNextN(starting, results, count){
+  const finished = new Set(results.filter(r => safeStr(r.time).trim() !== "").map(r => r.head_number));
+  return starting
+    .slice()
+    .sort((a,b)=>Number(a.entry_order||0)-Number(b.entry_order||0))
+    .filter(e => !finished.has(e.head_number) && e.not_in_competition === false)
+    .slice(0, count);
 }
 function findStartingByBib(starting, bib){
   if(!bib) return null;
@@ -1152,24 +1165,75 @@ function renderLive(standings, last, next, totalDone, totalAll, isLive, pageKey)
     $("lastTime").textContent = "—";
   }
 
-  if(isLive && next){
-    $("nextOrder").textContent = `#${next.entry_order}`;
-    $("nextRider").textContent = fmtRider(next.rider);
-    $("nextBib").textContent = next.head_number ? `(${next.head_number})` : "";
-    const nf = $("nextFlag");
-    const nNat = next.rider?.nationality || next.rider?.country_code || next.nationality || next.country_code;
-    const nsrc = flagSrc(nNat);
-    if(nf){ if(nsrc){ nf.src = nsrc; nf.style.display = ""; } else { nf.removeAttribute("src"); nf.style.display = "none"; } }
-    $("nextHorse").textContent = next.horse?.full_name || "—";
+  const liveUp = isLiveAvailable();
+  const nextBoxEl = document.querySelector(".nextBox");
+  const currentBoxEl = document.querySelector(".currentBox");
+  const expandedList = $("nextExpandedList");
+
+  if(liveUp){
+    // --- Live attivo: NEXT singolo + CURRENT visibile ---
+    if(nextBoxEl) nextBoxEl.classList.remove("expanded");
+    if(currentBoxEl) currentBoxEl.classList.remove("hidden");
+    if(expandedList) expandedList.innerHTML = "";
+
+    if(isLive && next){
+      $("nextOrder").textContent = `#${next.entry_order}`;
+      $("nextRider").textContent = fmtRider(next.rider);
+      $("nextBib").textContent = next.head_number ? `(${next.head_number})` : "";
+      const nf = $("nextFlag");
+      const nNat = next.rider?.nationality || next.rider?.country_code || next.nationality || next.country_code;
+      const nsrc = flagSrc(nNat);
+      if(nf){ if(nsrc){ nf.src = nsrc; nf.style.display = ""; } else { nf.removeAttribute("src"); nf.style.display = "none"; } }
+      $("nextHorse").textContent = next.horse?.full_name || "—";
+    }else{
+      $("nextOrder").textContent = "—";
+      $("nextRider").textContent = "—";
+      $("nextBib").textContent = "";
+      const nf = $("nextFlag"); if(nf){ nf.removeAttribute("src"); nf.style.display="none"; }
+      $("nextHorse").textContent = "—";
+    }
+    renderCurrentBox(state.liveCurrent, state._startingList);
   }else{
-    $("nextOrder").textContent = "—";
-    $("nextRider").textContent = "—";
-    $("nextBib").textContent = "";
-    const nf = $("nextFlag"); if(nf){ nf.removeAttribute("src"); nf.style.display="none"; }
-    $("nextHorse").textContent = "—";
+    // --- Live NON attivo: nascondi CURRENT, espandi NEXT ---
+    if(currentBoxEl) currentBoxEl.classList.add("hidden");
+    if(nextBoxEl) nextBoxEl.classList.add("expanded");
+
+    const starting = state._startingList || [];
+    const nextRiders = computeNextN(starting, standings, 6);
+    if(expandedList){
+      expandedList.innerHTML = "";
+      for(const entry of nextRiders){
+        const row = document.createElement("div");
+        row.className = "nextExpandedRow";
+
+        const order = document.createElement("span");
+        order.className = "nextExpOrder";
+        order.textContent = `#${entry.entry_order || "—"}`;
+
+        const flagImg = document.createElement("img");
+        flagImg.className = "flagIcon";
+        const nat = entry.rider?.nationality || entry.rider?.country_code || entry.nationality || entry.country_code;
+        const src = flagSrc(nat);
+        if(src){ flagImg.src = src; } else { flagImg.style.display = "none"; }
+
+        const rider = document.createElement("span");
+        rider.className = "nextExpRider";
+        rider.textContent = fmtRider(entry.rider);
+
+        const horse = document.createElement("span");
+        horse.className = "nextExpHorse";
+        horse.textContent = entry.horse?.full_name || "—";
+
+        const bib = document.createElement("span");
+        bib.className = "nextExpBib";
+        bib.textContent = entry.head_number ? `(${entry.head_number})` : "";
+
+        row.append(order, flagImg, rider, horse, bib);
+        expandedList.appendChild(row);
+      }
+    }
   }
 
-  renderCurrentBox(state.liveCurrent, state._startingList);
   setStats(totalDone, totalAll, standings);
 }
 

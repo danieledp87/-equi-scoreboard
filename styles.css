@@ -361,6 +361,26 @@ body.setup-open #bg{opacity:0.35;}
 .sideBox .kv .small{font-size:clamp(13px,1.2vw,17px);}
 .sideBox .kv span:not(.small){font-size:clamp(16px,1.6vw,24px);font-weight:950;}
 
+/* NEXT expanded (when CURRENT is hidden) */
+.nextBox.expanded{flex:1;min-height:0;}
+#nextExpandedList{display:none;flex-direction:column;gap:6px;margin-top:8px;}
+.nextBox.expanded #nextSingle{display:none;}
+.nextBox.expanded #nextExpandedList{display:flex;}
+.nextExpandedRow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:6px 10px;
+  border-radius:8px;
+  background:rgba(255,255,255,.04);
+}
+.nextExpandedRow .flagIcon{width:32px;height:22px;border-radius:3px;border:1px solid rgba(255,255,255,.2);object-fit:cover;flex:0 0 auto;}
+.nextExpandedRow .nextExpOrder{font-weight:900;font-size:clamp(14px,1.2vw,20px);min-width:36px;text-align:right;opacity:.6;}
+.nextExpandedRow .nextExpRider{font-weight:800;font-size:clamp(15px,1.4vw,22px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nextExpandedRow .nextExpHorse{font-size:clamp(13px,1.1vw,18px);opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nextExpandedRow .nextExpBib{font-size:clamp(12px,1vw,16px);opacity:.5;flex:0 0 auto;}
+.currentBox.hidden{display:none !important;}
+
 .currentBox{min-height:260px;}
 .currentBox .bigLine{font-size:clamp(24px,2.1vw,34px);}
 .currentBox .midLine{font-size:clamp(19px,1.95vw,27px);}
