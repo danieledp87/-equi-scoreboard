@@ -28,6 +28,10 @@ HEARTBEAT_TTL = 60  # seconds
 registry_lock = threading.Lock()
 registry = {}
 
+# LAST rider store: (competition_id, arena_name) -> {head_number, rider, horse, ...}
+last_store_lock = threading.Lock()
+last_store = {}
+
 def now_ts():
     return time.time()
 
@@ -84,6 +88,8 @@ class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith("/live/current"):
             return self._get_current()
+        if self.path.startswith("/live/last"):
+            return self._get_last()
         if self.path.startswith("/live/registry"):
             return self._get_registry()
         if self.path.startswith("/api/"):
@@ -92,6 +98,11 @@ class Handler(SimpleHTTPRequestHandler):
         return super().do_GET()
 
     def do_POST(self):
+        if self.path.startswith("/live/last"):
+            payload = parse_json(self)
+            if payload is None:
+                return json_response(self, 400, {"error": "invalid_json"})
+            return self._post_last(payload)
         if self.path.startswith("/live/"):
             return self._handle_live_post()
         self.send_response(404)
@@ -319,6 +330,32 @@ class Handler(SimpleHTTPRequestHandler):
                 for k, v in registry.items()
             }
         return json_response(self, 200, data)
+
+    def _get_last(self):
+        from urllib.parse import parse_qs
+        qs = parse_qs(urlsplit(self.path).query or "")
+        comp = qs.get("competition_id", [None])[0]
+        arena = qs.get("arena_name", [None])[0]
+        if not comp or not arena:
+            return json_response(self, 400, {"error": "missing_params"})
+        key = (str(comp), str(arena))
+        with last_store_lock:
+            data = last_store.get(key)
+        if data:
+            return json_response(self, 200, {"available": True, "last": data})
+        return json_response(self, 200, {"available": False})
+
+    def _post_last(self, p):
+        comp = p.get("competition_id")
+        arena = p.get("arena_name")
+        last = p.get("last")
+        if not comp or not arena or not last:
+            return json_response(self, 400, {"error": "missing_fields"})
+        key = (str(comp), str(arena))
+        with last_store_lock:
+            last_store[key] = last
+        print(f"[LAST] Saved last for {key}: head_number={last.get('head_number')}")
+        return json_response(self, 200, {"ok": True})
 
     def _proxy(self):
         rel = self.path[len("/api"):]  # keep leading /

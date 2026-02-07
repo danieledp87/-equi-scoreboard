@@ -511,6 +511,34 @@ function normalizeTime(time){
 function rowKey(r){
   return r?.id ?? `${r?.head_number||""}-${r?.updated||""}-${r?.time||""}`;
 }
+async function fetchSavedLast(){
+  if(!state.competitionId || !state.arenaName) return;
+  try{
+    const url = `/live/last?competition_id=${encodeURIComponent(state.competitionId)}&arena_name=${encodeURIComponent(state.arenaName)}`;
+    const resp = await fetch(url, { cache: "no-store" });
+    const data = await resp.json();
+    if(data.available && data.last){
+      state.lastDetected = data.last;
+      console.log(`[LAST] Loaded saved last from server: head_number=${data.last.head_number}`);
+    }
+  }catch(e){
+    console.log("[LAST] Could not fetch saved last:", e.message);
+  }
+}
+
+function saveLast(result){
+  if(!state.competitionId || !state.arenaName || !result) return;
+  fetch("/live/last", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      competition_id: state.competitionId,
+      arena_name: state.arenaName,
+      last: result
+    })
+  }).catch(() => {});
+}
+
 function computeLastByBaseline(results){
   // Costruisci la mappa attuale: head_number -> { faults, result }
   const currentHeads = new Map();
@@ -522,13 +550,15 @@ function computeLastByBaseline(results){
     }
   }
 
-  // Prima chiamata: inizializza la baseline, LAST resta vuoto
+  // Prima chiamata: inizializza la baseline, carica LAST dal server
   if(state.headBaseline.size === 0 && currentHeads.size > 0){
     state.headBaseline = new Map();
     for(const [hn, data] of currentHeads){
       state.headBaseline.set(hn, data.faults);
     }
-    return null;
+    // Carica il LAST salvato dal server (async, verrà mostrato al prossimo refresh)
+    if(!state.lastDetected) fetchSavedLast();
+    return state.lastDetected;
   }
 
   // Cerca testiere NUOVE o con penalità CAMBIATE
@@ -546,10 +576,11 @@ function computeLastByBaseline(results){
     }
   }
 
-  // Se ci sono cambiamenti, il più recente diventa il LAST
+  // Se ci sono cambiamenti, il più recente diventa il LAST e lo salviamo sul server
   if(changed.length > 0){
     const newest = changed.sort((a,b) => Number(b.updated||0) - Number(a.updated||0))[0];
     state.lastDetected = newest;
+    saveLast(newest);
   }
 
   // Aggiorna la baseline
