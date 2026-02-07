@@ -206,7 +206,7 @@ body.setup-open #bg{opacity:0.35;}
   padding:12px 14px;
   border-bottom:1px solid var(--stroke);
   font-weight:950;
-  font-size:clamp(14px,1.2vw,17px);
+  font-size:clamp(17px,1.5vw,22px);
   background:linear-gradient(90deg, rgba(0,190,255,.16), rgba(0,0,0,0));
   color:rgba(255,255,255,.86)
 }
@@ -329,7 +329,7 @@ body.setup-open #bg{opacity:0.35;}
   padding:12px 14px;
   border-bottom:1px solid rgba(255,255,255,.08);
   font-weight:950;
-  font-size:clamp(14px,1.1vw,16px);
+  font-size:clamp(17px,1.5vw,22px);
   background:linear-gradient(90deg, rgba(0,190,255,.10), rgba(0,0,0,0))
 }
 
