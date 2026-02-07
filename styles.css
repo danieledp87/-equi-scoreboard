@@ -364,7 +364,6 @@ body.setup-open #bg{opacity:0.35;}
 /* NEXT expanded (when CURRENT is hidden) */
 .nextBox.expanded{flex:1;min-height:0;}
 #nextExpandedList{display:none;flex-direction:column;gap:6px;margin-top:8px;}
-.nextBox.expanded #nextSingle{display:none;}
 .nextBox.expanded #nextExpandedList{display:flex;}
 .nextExpandedRow{
   display:flex;

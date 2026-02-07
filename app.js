@@ -1170,39 +1170,42 @@ function renderLive(standings, last, next, totalDone, totalAll, isLive, pageKey)
   const currentBoxEl = document.querySelector(".currentBox");
   const expandedList = $("nextExpandedList");
 
+  // --- Popola sempre il NEXT singolo (primo prossimo rider) ---
+  if(isLive && next){
+    $("nextOrder").textContent = `#${next.entry_order}`;
+    $("nextRider").textContent = fmtRider(next.rider);
+    $("nextBib").textContent = next.head_number ? `(${next.head_number})` : "";
+    const nf = $("nextFlag");
+    const nNat = next.rider?.nationality || next.rider?.country_code || next.nationality || next.country_code;
+    const nsrc = flagSrc(nNat);
+    if(nf){ if(nsrc){ nf.src = nsrc; nf.style.display = ""; } else { nf.removeAttribute("src"); nf.style.display = "none"; } }
+    $("nextHorse").textContent = next.horse?.full_name || "—";
+  }else{
+    $("nextOrder").textContent = "—";
+    $("nextRider").textContent = "—";
+    $("nextBib").textContent = "";
+    const nf = $("nextFlag"); if(nf){ nf.removeAttribute("src"); nf.style.display="none"; }
+    $("nextHorse").textContent = "—";
+  }
+
   if(liveUp){
     // --- Live attivo: NEXT singolo + CURRENT visibile ---
     if(nextBoxEl) nextBoxEl.classList.remove("expanded");
     if(currentBoxEl) currentBoxEl.classList.remove("hidden");
     if(expandedList) expandedList.innerHTML = "";
-
-    if(isLive && next){
-      $("nextOrder").textContent = `#${next.entry_order}`;
-      $("nextRider").textContent = fmtRider(next.rider);
-      $("nextBib").textContent = next.head_number ? `(${next.head_number})` : "";
-      const nf = $("nextFlag");
-      const nNat = next.rider?.nationality || next.rider?.country_code || next.nationality || next.country_code;
-      const nsrc = flagSrc(nNat);
-      if(nf){ if(nsrc){ nf.src = nsrc; nf.style.display = ""; } else { nf.removeAttribute("src"); nf.style.display = "none"; } }
-      $("nextHorse").textContent = next.horse?.full_name || "—";
-    }else{
-      $("nextOrder").textContent = "—";
-      $("nextRider").textContent = "—";
-      $("nextBib").textContent = "";
-      const nf = $("nextFlag"); if(nf){ nf.removeAttribute("src"); nf.style.display="none"; }
-      $("nextHorse").textContent = "—";
-    }
     renderCurrentBox(state.liveCurrent, state._startingList);
   }else{
-    // --- Live NON attivo: nascondi CURRENT, espandi NEXT ---
+    // --- Live NON attivo: nascondi CURRENT, espandi NEXT con rider aggiuntivi ---
     if(currentBoxEl) currentBoxEl.classList.add("hidden");
     if(nextBoxEl) nextBoxEl.classList.add("expanded");
 
     const starting = state._startingList || [];
-    const nextRiders = computeNextN(starting, standings, 6);
+    // Prendi i prossimi rider DOPO il primo (che è già nel NEXT singolo)
+    const allNext = computeNextN(starting, standings, 7);
+    const extraRiders = allNext.slice(1); // salta il primo, già mostrato in #nextSingle
     if(expandedList){
       expandedList.innerHTML = "";
-      for(const entry of nextRiders){
+      for(const entry of extraRiders){
         const row = document.createElement("div");
         row.className = "nextExpandedRow";
 
@@ -1352,6 +1355,7 @@ if(state.mode === "sample"){
     state.renderedIds = new Set();
     state.headBaseline = new Set();
     state.lastDetected = null;
+    state.lastFinish = null;
   }
 
   state._currentClassMeta = pick.classMeta;
