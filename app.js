@@ -1085,11 +1085,11 @@ function renderLive(standings, last, next, totalDone, totalAll, isLive, pageKey)
   rows.innerHTML = "";
 
   const sorted = standings.slice().sort((a,b)=>Number(a.ranking_position||9999)-Number(b.ranking_position||9999));
-  // mobile: mostra solo i primi 10, scrollabili, senza paging
+  // mobile: mostra tutti i risultati, scrollabili a mano, senza paging
   const isMobile = window.innerWidth <= 768;
   let pageItems;
   if(isMobile){
-    pageItems = sorted.slice(0, 10);
+    pageItems = sorted;
     state.page = 0;
   }else{
     const fit = rowsThatFit("rowsLive", sorted[0] || dummyRow());
