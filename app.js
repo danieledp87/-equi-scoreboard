@@ -33,7 +33,7 @@ const state = {
   refreshMs: 1000,  // 1 secondo - aggiornamento classifica più frequente
   livePollMs: 500,
   liveGraceMs: 3000,
-  headBaseline: new Set(), // baseline of head_numbers already in results
+  headBaseline: new Map(), // baseline: head_number -> faults
   lastDetected: null,      // last detected rider (persists until a new one appears)
   lastAnimKey: "",
   liveCurrent: null,
@@ -512,39 +512,51 @@ function rowKey(r){
   return r?.id ?? `${r?.head_number||""}-${r?.updated||""}-${r?.time||""}`;
 }
 function computeLastByBaseline(results){
-  // Costruisci il set attuale di testiere con tempo (= hanno finito)
-  const currentHeads = new Set();
-  const resultsByHead = new Map();
+  // Costruisci la mappa attuale: head_number -> { faults, result }
+  const currentHeads = new Map();
   for(const r of results){
     if(r.head_number && safeStr(r.time).trim() !== ""){
-      currentHeads.add(String(r.head_number));
-      resultsByHead.set(String(r.head_number), r);
+      const hn = String(r.head_number);
+      const faults = safeStr(r.faults).trim().toLowerCase();
+      currentHeads.set(hn, { faults, result: r });
     }
   }
 
   // Prima chiamata: inizializza la baseline, LAST resta vuoto
   if(state.headBaseline.size === 0 && currentHeads.size > 0){
-    state.headBaseline = new Set(currentHeads);
+    state.headBaseline = new Map();
+    for(const [hn, data] of currentHeads){
+      state.headBaseline.set(hn, data.faults);
+    }
     return null;
   }
 
-  // Cerca testiere NUOVE (presenti ora ma non nella baseline)
-  const newHeads = [];
-  for(const hn of currentHeads){
-    if(!state.headBaseline.has(hn)){
-      newHeads.push(resultsByHead.get(hn));
+  // Cerca testiere NUOVE o con penalità CAMBIATE
+  const changed = [];
+  for(const [hn, data] of currentHeads){
+    const prevFaults = state.headBaseline.get(hn);
+    if(prevFaults === undefined){
+      // Testiera completamente nuova
+      changed.push(data.result);
+      console.log(`[LAST] Nuova testiera: ${hn}`);
+    }else if(prevFaults !== data.faults){
+      // Penalità cambiate (barrage, ELIM, RIT, NP...)
+      changed.push(data.result);
+      console.log(`[LAST] Penalità cambiate per testiera ${hn}: "${prevFaults}" → "${data.faults}"`);
     }
   }
 
-  // Se ci sono nuove testiere, la più recente diventa il LAST
-  if(newHeads.length > 0){
-    const newest = newHeads.sort((a,b) => Number(b.updated||0) - Number(a.updated||0))[0];
+  // Se ci sono cambiamenti, il più recente diventa il LAST
+  if(changed.length > 0){
+    const newest = changed.sort((a,b) => Number(b.updated||0) - Number(a.updated||0))[0];
     state.lastDetected = newest;
-    console.log(`[LAST] Nuova testiera rilevata: ${newest.head_number}`);
   }
 
   // Aggiorna la baseline
-  state.headBaseline = new Set(currentHeads);
+  state.headBaseline = new Map();
+  for(const [hn, data] of currentHeads){
+    state.headBaseline.set(hn, data.faults);
+  }
 
   // Ritorna sempre l'ultimo rilevato (persiste fino a nuova aggiunta)
   return state.lastDetected;
@@ -1357,7 +1369,7 @@ if(state.mode === "sample"){
     state.finishSeenIds = new Set();
     state.finishAvg = null;
     state.renderedIds = new Set();
-    state.headBaseline = new Set();
+    state.headBaseline = new Map();
     state.lastDetected = null;
     state.lastFinish = null;
   }
