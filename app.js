@@ -33,7 +33,8 @@ const state = {
   refreshMs: 1000,  // 1 secondo - aggiornamento classifica più frequente
   livePollMs: 500,
   liveGraceMs: 3000,
-  lastSnapshot: new Map(), // head_number -> time
+  headBaseline: new Set(), // baseline of head_numbers already in results
+  lastDetected: null,      // last detected rider (persists until a new one appears)
   lastAnimKey: "",
   liveCurrent: null,
   liveCurrentAt: 0,
@@ -502,55 +503,53 @@ function normalizeTime(time){
   return Number.isFinite(n) ? n.toFixed(2) : s;
 }
 
-function snapshotTimes(results){
-  state.lastSnapshot.clear();
-  for(const r of results){
-    // Salva tempo e penalità NORMALIZZATI per confronti affidabili
-    state.lastSnapshot.set(r.head_number, {
-      time: normalizeTime(r.time),
-      faults: normalizeFaults(r.faults),
-      updated: Number(r.updated || 0)
-    });
-  }
-}
 function rowKey(r){
   return r?.id ?? `${r?.head_number||""}-${r?.updated||""}-${r?.time||""}`;
 }
-function computeLastByDelta(results){
-  const newResults = [];      // risultati completamente nuovi
-  const modifiedResults = [];  // risultati con dati modificati
-
+function computeLastByBaseline(results){
+  // Costruisci il set attuale di testiere con tempo (= hanno finito)
+  const currentHeads = new Set();
+  const resultsByHead = new Map();
   for(const r of results){
-    const hn = r.head_number;
-    const prev = state.lastSnapshot.get(hn);
-    const curTime = normalizeTime(r.time);
-    const curFaults = normalizeFaults(r.faults);
-
-    if(!prev){
-      // Nuovo risultato: aggiungilo solo se ha un tempo
-      if(curTime) newResults.push(r);
-    }else{
-      // Risultato esistente: verifica se tempo o penalità sono cambiati
-      if(prev.time !== curTime || prev.faults !== curFaults){
-        modifiedResults.push(r);
-      }
+    if(r.head_number && safeStr(r.time).trim() !== ""){
+      currentHeads.add(String(r.head_number));
+      resultsByHead.set(String(r.head_number), r);
     }
   }
 
-  // Priorità 1: Risultati NUOVI (ordina per updated più recente)
-  if(newResults.length > 0){
-    return newResults.sort((a,b) => Number(b.updated||0) - Number(a.updated||0))[0];
+  // Prima chiamata: inizializza la baseline senza rilevare LAST
+  if(state.headBaseline.size === 0 && currentHeads.size > 0){
+    state.headBaseline = new Set(currentHeads);
+    // Al primo caricamento, usa il più recente come LAST iniziale
+    const sorted = results
+      .filter(r => safeStr(r.time).trim() !== "")
+      .sort((a,b) => Number(b.updated||0) - Number(a.updated||0));
+    if(sorted.length > 0){
+      state.lastDetected = sorted[0];
+    }
+    return state.lastDetected;
   }
 
-  // Priorità 2: Risultati MODIFICATI (ordina per updated più recente)
-  if(modifiedResults.length > 0){
-    return modifiedResults.sort((a,b) => Number(b.updated||0) - Number(a.updated||0))[0];
+  // Cerca testiere NUOVE (presenti ora ma non nella baseline)
+  const newHeads = [];
+  for(const hn of currentHeads){
+    if(!state.headBaseline.has(hn)){
+      newHeads.push(resultsByHead.get(hn));
+    }
   }
 
-  return null;
-}
-function computeLastFallback(results){
-  return results.slice().sort((a,b)=>Number(b.updated||0)-Number(a.updated||0))[0] || null;
+  // Se ci sono nuove testiere, la più recente diventa il LAST
+  if(newHeads.length > 0){
+    const newest = newHeads.sort((a,b) => Number(b.updated||0) - Number(a.updated||0))[0];
+    state.lastDetected = newest;
+    console.log(`[LAST] Nuova testiera rilevata: ${newest.head_number}`);
+  }
+
+  // Aggiorna la baseline
+  state.headBaseline = new Set(currentHeads);
+
+  // Ritorna sempre l'ultimo rilevato (persiste fino a nuova aggiunta)
+  return state.lastDetected;
 }
 function computeNext(starting, results){
   const finished = new Set(results.filter(r => safeStr(r.time).trim() !== "").map(r => r.head_number));
@@ -1287,6 +1286,8 @@ if(state.mode === "sample"){
     state.finishSeenIds = new Set();
     state.finishAvg = null;
     state.renderedIds = new Set();
+    state.headBaseline = new Set();
+    state.lastDetected = null;
   }
 
   state._currentClassMeta = pick.classMeta;
@@ -1296,8 +1297,7 @@ if(state.mode === "sample"){
   const totalAll = startJson.starting_list_count || pick.classMeta.starting_list_count || starting.length || null;
   const totalDone = standings.filter(r => safeStr(r.time).trim() !== "").length;
 
-  let last = computeLastByDelta(standings);
-  if(!last) last = computeLastFallback(standings);
+  let last = computeLastByBaseline(standings);
 
   const isLive = (pick.mode === "live");
   const next = isLive ? computeNext(starting, standings) : null;
@@ -1342,7 +1342,6 @@ if(state.mode === "sample"){
     renderFinal(standings, totalDone, totalAll, pageKey);
   }
 
-  snapshotTimes(standings);
 }
 
 function fillSetup(){
