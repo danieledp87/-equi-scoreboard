@@ -522,17 +522,10 @@ function computeLastByBaseline(results){
     }
   }
 
-  // Prima chiamata: inizializza la baseline senza rilevare LAST
+  // Prima chiamata: inizializza la baseline, LAST resta vuoto
   if(state.headBaseline.size === 0 && currentHeads.size > 0){
     state.headBaseline = new Set(currentHeads);
-    // Al primo caricamento, usa il più recente come LAST iniziale
-    const sorted = results
-      .filter(r => safeStr(r.time).trim() !== "")
-      .sort((a,b) => Number(b.updated||0) - Number(a.updated||0));
-    if(sorted.length > 0){
-      state.lastDetected = sorted[0];
-    }
-    return state.lastDetected;
+    return null;
   }
 
   // Cerca testiere NUOVE (presenti ora ma non nella baseline)
