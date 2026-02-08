@@ -227,19 +227,19 @@ function renderCurrentBox(live, starting){
 
 function isPointsClass(meta, standings){
   const n = (meta?.class_name || "").toLowerCase();
-  const timeCat = n.includes("tempo") || n.includes("time") || n.includes("clock");
-  if(!timeCat) return false;
-  if(n.includes("accumulator") || n.includes("punti") || n.includes("points") || n.includes("a punti")) return true;
+  // match by name: accumulator / punti / points / art 269 / art 229
+  if(n.includes("accum") || n.includes("punti") || n.includes("points")
+    || n.includes("a punti") || n.includes("art 269") || n.includes("art 229")) return true;
 
-  // euristica: se punti variano e non ci sono faults, allora è a punti
-  let ptsNonZero = 0, faultsPresent = 0;
+  // euristica: se più rider hanno punti diversi da 0 e faults sono tutti "0" o vuoti
+  let ptsNonZero = 0, faultsReal = 0;
   for(const r of (standings||[])){
     const p = safeStr(r.points).trim();
     if(p && p !== "0" && p !== "0.0") ptsNonZero++;
-    const f = safeStr(r.faults).trim();
-    if(f) faultsPresent++;
+    const f = safeStr(r.faults).trim().toLowerCase();
+    if(f && f !== "0" && f !== "0.0" && !f.includes("elim") && !f.includes("rit") && !f.includes("n.p")) faultsReal++;
   }
-  if(ptsNonZero > 0 && faultsPresent === 0) return true;
+  if(ptsNonZero >= 2 && faultsReal === 0) return true;
   return false;
 }
 
