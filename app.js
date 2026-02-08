@@ -524,6 +524,13 @@ async function fetchSavedLast(){
     const resp = await fetch(url, { cache: "no-store" });
     const data = await resp.json();
     if(data.available && data.last){
+      // Only use saved LAST if it belongs to the current class
+      const savedClassId = String(data.last._class_id || "");
+      const curClassId = String(state.finishClassId || "");
+      if(savedClassId && curClassId && savedClassId !== curClassId){
+        console.log(`[LAST] Ignoring saved last from different class (saved=${savedClassId}, current=${curClassId})`);
+        return;
+      }
       state.lastDetected = data.last;
       console.log(`[LAST] Loaded saved last from server: head_number=${data.last.head_number}`);
     }
@@ -534,13 +541,14 @@ async function fetchSavedLast(){
 
 function saveLast(result){
   if(!state.competitionId || !state.arenaName || !result) return;
+  const toSave = { ...result, _class_id: state.finishClassId || "" };
   fetch("/live/last", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       competition_id: state.competitionId,
       arena_name: state.arenaName,
-      last: result
+      last: toSave
     })
   }).catch(() => {});
 }
