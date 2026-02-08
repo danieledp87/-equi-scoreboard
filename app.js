@@ -43,6 +43,7 @@ const state = {
   liveClockHandle: null,
   lastFinish: null,          // snapshot of last finish to keep rank visible
   lastCurrentBib: null,      // last known bib from server (for bib change detection)
+  phaseFinishPending: false,  // true when phase 1 finished (time but no rank) - next start uses 6s offset
   // Live timing integration (chrono/monotonic anchors)
   liveTiming: {
     bib: null,
@@ -665,17 +666,27 @@ function timingReset(){
     phaseRawTime: null,
     lastPhaseKey: null,
   };
+  state.phaseFinishPending = false;
 }
 
 function timingHandleStart(ev){
+  const PHASE2_DEFAULT_OFFSET = 6; // seconds: default offset when phase 2 starts
   const { bib, chrono_time, mono_ts } = ev;
   const t0 = nowMono();
+  // If phase 1 just finished (time arrived but no rank), use 6s offset as starting point
+  // unless chrono_time already carries the real offset
+  let offset = safeNum(chrono_time) || 0;
+  if(state.phaseFinishPending && offset === 0){
+    offset = PHASE2_DEFAULT_OFFSET;
+    console.log(`[TIMING] Phase 2 start detected - using ${PHASE2_DEFAULT_OFFSET}s default offset (anchors will correct)`);
+  }
+  state.phaseFinishPending = false;
   state.liveTiming = {
     ...state.liveTiming,
     bib,
     startKey: `${bib||"?"}-${t0}`,
     t0Site: t0,
-    startOffset: safeNum(chrono_time) || 0,
+    startOffset: offset,
     driftOffset: 0,
     smooth: null,
     lastAnchorToken: null,
@@ -883,6 +894,13 @@ function applyTimingEvents(live){
       time: live.finish_time,
       penalty: live.penalty,
     };
+    // Detect phase finish: time present but NO rank → end of phase 1
+    if(live.rank == null){
+      state.phaseFinishPending = true;
+      console.log(`[TIMING] Phase 1 finish detected (time=${live.finish_time}, no rank) - next start will use phase 2 offset`);
+    }else{
+      state.phaseFinishPending = false; // definitive finish with rank, no phase pending
+    }
   }else if(live.state === "finished" && live.finish_time == null){
     console.warn(`[TIMING] State is 'finished' but finish_time is null! The 'finish' event may be missing the 'time' field.`);
   }
