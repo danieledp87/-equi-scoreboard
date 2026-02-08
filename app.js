@@ -576,9 +576,16 @@ function computeLastByBaseline(results){
     }
   }
 
-  // Se ci sono cambiamenti, il più recente diventa il LAST e lo salviamo sul server
-  if(changed.length > 0){
-    const newest = changed.sort((a,b) => Number(b.updated||0) - Number(a.updated||0))[0];
+  // Filtra N.P. (non partito) — non deve apparire come LAST
+  const valid = changed.filter(r => {
+    const f = safeStr(r.faults).trim().toUpperCase();
+    const p = safeStr(r.ranking_position_explained || "").trim().toUpperCase();
+    return !f.includes("N.P") && !p.includes("N.P");
+  });
+
+  // Se ci sono cambiamenti validi, il più recente diventa il LAST e lo salviamo sul server
+  if(valid.length > 0){
+    const newest = valid.sort((a,b) => Number(b.updated||0) - Number(a.updated||0))[0];
     state.lastDetected = newest;
     saveLast(newest);
   }
@@ -840,7 +847,7 @@ function applyTimingEvents(live){
   const curBib = live.current_bib;
   if(state.liveTiming.bib && curBib && state.liveTiming.bib !== curBib){
     timingReset();
-    // keep lastFinish until a start arrives, so previous rank stays visible during gap
+    state.lastFinish = null; // reset old finish data for new rider
   }
 
   // prevent false running when no start has been received client-side
