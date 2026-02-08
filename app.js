@@ -610,6 +610,25 @@ function computeLastByBaseline(results){
     state.headBaseline.set(hn, data.faults);
   }
 
+  // Refresh dati LAST dalla classifica corrente (tempo/penalità/rank possono aggiornarsi)
+  if(state.lastDetected && state.lastDetected.head_number){
+    const hn = String(state.lastDetected.head_number);
+    const fresh = currentHeads.get(hn);
+    if(fresh){
+      const prev = state.lastDetected;
+      const cur = fresh.result;
+      // Aggiorna se qualcosa è cambiato (updated, faults, time, rank)
+      if(String(cur.updated||"") !== String(prev.updated||"")
+        || safeStr(cur.faults) !== safeStr(prev.faults)
+        || safeStr(cur.time) !== safeStr(prev.time)
+        || String(cur.ranking_position||"") !== String(prev.ranking_position||"")){
+        console.log(`[LAST] Refreshing LAST data for bib ${hn}: faults=${safeStr(prev.faults)}→${safeStr(cur.faults)} time=${safeStr(prev.time)}→${safeStr(cur.time)} rank=${prev.ranking_position}→${cur.ranking_position}`);
+        state.lastDetected = cur;
+        saveLast(cur);
+      }
+    }
+  }
+
   // Ritorna sempre l'ultimo rilevato (persiste fino a nuova aggiunta)
   return state.lastDetected;
 }
