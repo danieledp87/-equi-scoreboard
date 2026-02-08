@@ -605,19 +605,23 @@ function computeLastByBaseline(results){
   // Ritorna sempre l'ultimo rilevato (persiste fino a nuova aggiunta)
   return state.lastDetected;
 }
-function computeNext(starting, results){
+function computeNext(starting, results, excludeBib){
   const finished = new Set(results.filter(r => safeStr(r.time).trim() !== "").map(r => r.head_number));
+  const excl = excludeBib ? String(excludeBib) : null;
   return starting
     .slice()
     .sort((a,b)=>Number(a.entry_order||0)-Number(b.entry_order||0))
-    .find(e => !finished.has(e.head_number) && e.not_in_competition === false) || null;
+    .find(e => !finished.has(e.head_number) && e.not_in_competition === false
+      && (!excl || String(e.head_number) !== excl)) || null;
 }
-function computeNextN(starting, results, count){
+function computeNextN(starting, results, count, excludeBib){
   const finished = new Set(results.filter(r => safeStr(r.time).trim() !== "").map(r => r.head_number));
+  const excl = excludeBib ? String(excludeBib) : null;
   return starting
     .slice()
     .sort((a,b)=>Number(a.entry_order||0)-Number(b.entry_order||0))
-    .filter(e => !finished.has(e.head_number) && e.not_in_competition === false)
+    .filter(e => !finished.has(e.head_number) && e.not_in_competition === false
+      && (!excl || String(e.head_number) !== excl))
     .slice(0, count);
 }
 function findStartingByBib(starting, bib){
@@ -1459,7 +1463,8 @@ if(state.mode === "sample"){
   let last = computeLastByBaseline(standings);
 
   const isLive = (pick.mode === "live");
-  const next = isLive ? computeNext(starting, standings) : null;
+  const liveBib = isLiveAvailable() ? state.liveCurrent?.current_bib : null;
+  const next = isLive ? computeNext(starting, standings, liveBib) : null;
   detectStartTime(pick);
   collectDurations(standings);
   trackArrivals(standings);
