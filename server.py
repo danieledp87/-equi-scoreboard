@@ -214,11 +214,12 @@ class Handler(SimpleHTTPRequestHandler):
 
             if etype == "bib_change":
                 st["current_bib"] = bib
+                st["state"] = "idle"
                 st["finish_time"] = None
                 st["rank"] = None
                 st["penalty"] = 0
-                print(f"[EVENT] bib_change: bib={bib}")
-                # keep state/start_time as-is (timer may keep running)
+                st["start_time"] = None
+                print(f"[EVENT] bib_change: bib={bib} (state reset to idle)")
             elif etype == "start":
                 st["current_bib"] = bib
                 st["start_time"] = p.get("start_time") or ts

@@ -42,6 +42,7 @@ const state = {
   livePollHandle: null,
   liveClockHandle: null,
   lastFinish: null,          // snapshot of last finish to keep rank visible
+  lastCurrentBib: null,      // last known bib from server (for bib change detection)
   // Live timing integration (chrono/monotonic anchors)
   liveTiming: {
     bib: null,
@@ -174,14 +175,15 @@ function renderCurrentBox(live, starting){
     if(bibEl) bibEl.textContent = bib ? `(${bib})` : "";
   };
 
+  const isIdle = available && (live.state === "idle" || !live.state);
   const bib = available ? live.current_bib : (state.lastFinish?.bib || null);
-  const penalty = available ? fmtPenaltyLive(live.penalty) : (state.lastFinish?.penalty ?? "—");
+  const penalty = available ? (isIdle ? "—" : fmtPenaltyLive(live.penalty)) : (state.lastFinish?.penalty ?? "—");
   const stateLabel = available ? (live.state || "idle").toUpperCase() : "N/D";
 
   // CURRENT box
   setRiderHorse(bib, $("currentRider"), $("currentHorse"), $("currentFlag"), $("currentBib"));
-  const rankVal = (available && live && live.rank != null)
-    ? live.rank
+  const rankVal = isIdle ? null
+    : (available && live && live.rank != null) ? live.rank
     : (state.lastFinish?.rank ?? null);
   if(available && live){
     console.log(`[DISPLAY] State: ${live.state}, Rank: ${live.rank}, Bib: ${bib}, Penalty: ${penalty}, finish_time: ${live.finish_time}`);
@@ -194,6 +196,9 @@ function renderCurrentBox(live, starting){
   let timeStr;
   if(!available){
     console.log(`[TIME] Not available - showing "—"`);
+    timeStr = "—";
+  }else if(isIdle){
+    console.log(`[TIME] State is idle - showing "—" (no fallback)`);
     timeStr = "—";
   }else if(live.state === "running"){
     const t = timingCurrentSeconds();
@@ -843,12 +848,15 @@ function applyTimingEvents(live){
     }
   }
 
-  // if bib changes without explicit start event, keep previous timing unless different bib
+  // if bib changes (detected from either liveTiming.bib or lastCurrentBib), reset timing
   const curBib = live.current_bib;
-  if(state.liveTiming.bib && curBib && state.liveTiming.bib !== curBib){
+  const prevBib = state.liveTiming.bib || state.lastCurrentBib;
+  if(prevBib && curBib && String(prevBib) !== String(curBib)){
+    console.log(`[TIMING] Bib changed: ${prevBib} -> ${curBib}, resetting timing and lastFinish`);
     timingReset();
     state.lastFinish = null; // reset old finish data for new rider
   }
+  state.lastCurrentBib = curBib; // always track latest bib from server
 
   // prevent false running when no start has been received client-side
   if(live.state === "running" && state.liveTiming.t0Site === null){
@@ -1420,6 +1428,7 @@ if(state.mode === "sample"){
     state.headBaseline = new Map();
     state.lastDetected = null;
     state.lastFinish = null;
+    state.lastCurrentBib = null;
   }
 
   state._currentClassMeta = pick.classMeta;
