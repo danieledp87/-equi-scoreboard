@@ -346,14 +346,19 @@ async function fetchJson(url){
 function computeWeekendWindow(){
   const now = new Date();
   const day = now.getDay(); // 0=Sun ... 6=Sat
-  // Thursday = 4; find next/this Thursday
+  // Thursday = 4; find next/this Thursday (upcoming weekend)
   const offsetToThu = (4 - day + 7) % 7;
   const start = new Date(now);
   start.setHours(0,0,0,0);
   start.setDate(start.getDate() + offsetToThu);
   const end = new Date(start);
   end.setDate(end.getDate() + 3); // Thu -> Sun
-  const fmt = (d) => d.toISOString().slice(0,10);
+  const fmt = (d) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const da = String(d.getDate()).padStart(2,"0");
+    return `${y}-${m}-${da}`; // local date, no UTC shift
+  };
   return { from: fmt(start), to: fmt(end) };
 }
 
