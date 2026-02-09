@@ -105,7 +105,13 @@
       <h2>Setup</h2>
       <div class="grid">
         <div>
-          <label>Competition ID (API mode)</label>
+          <label>Concorso (weekend / live)</label>
+          <select id="competitionSelect">
+            <option value="">(carica concorsi…)</option>
+          </select>
+        </div>
+        <div id="manualCompetitionRow" style="display:none">
+          <label>ID concorso (manuale)</label>
           <input id="competitionId" value="14277"/>
         </div>
         <div>

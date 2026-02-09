@@ -21,6 +21,7 @@ const state = {
   competitionId: "14277",
   arenaName: "GIULIO CESARE",
   arenas: [],
+  competitions: [],
   mode: "api",      // demo | api | sample
   layout: "live",    // live | final
   page: 0,
@@ -342,8 +343,105 @@ async function fetchJson(url){
   return res.json();
 }
 
+function computeWeekendWindow(){
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun ... 6=Sat
+  // Thursday = 4; find next/this Thursday
+  const offsetToThu = (4 - day + 7) % 7;
+  const start = new Date(now);
+  start.setHours(0,0,0,0);
+  start.setDate(start.getDate() + offsetToThu);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 3); // Thu -> Sun
+  const fmt = (d) => d.toISOString().slice(0,10);
+  return { from: fmt(start), to: fmt(end) };
+}
+
+async function loadVenues(){
+  const venues = await fetchJson("./data/venues.json");
+  return Array.isArray(venues) ? venues : [];
+}
+
+function formatCompetitionLabel(c){
+  const start = c.start_date ? c.start_date.slice(5,10) : "";
+  const end = c.finish_date ? c.finish_date.slice(5,10) : "";
+  const range = (start && end) ? ` (${start} → ${end})` : "";
+  const stable = c.stable?.name || c.stableName || "";
+  const venue = stable ? ` — ${stable}` : "";
+  return `${c.name || "Concorso"}${range}${venue}`;
+}
+
+async function loadWeekendCompetitions(){
+  const { from, to } = computeWeekendWindow();
+  const venues = await loadVenues();
+  const map = new Map();
+  for(const v of venues){
+    if(!v?.stableId) continue;
+    try{
+      const url = `${API_BASE}/competitions/${from}/calendars/${to}/stables/${encodeURIComponent(v.stableId)}.json`;
+      const items = await fetchJson(url);
+      if(Array.isArray(items)){
+        for(const c of items){
+          const id = c.id || c.competition_id;
+          if(!id || map.has(id)) continue;
+          map.set(id, { ...c, stableName: v.label });
+        }
+      }
+    }catch(e){
+      console.error("calendars fetch failed", v, e);
+    }
+  }
+  const list = Array.from(map.values());
+  list.sort((a,b)=>{
+    const aDate = new Date(a.start_date || 0).getTime();
+    const bDate = new Date(b.start_date || 0).getTime();
+    return aDate - bDate;
+  });
+  return list;
+}
+
+function populateCompetitionSelect(list){
+  const sel = $("competitionSelect");
+  if(!sel) return;
+  sel.innerHTML = "";
+  if(!list.length){
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "(nessun concorso trovato)";
+    sel.appendChild(opt);
+  }else{
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "(seleziona concorso del weekend)";
+    sel.appendChild(placeholder);
+    for(const c of list){
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = formatCompetitionLabel(c);
+      sel.appendChild(opt);
+    }
+  }
+  const manualOpt = document.createElement("option");
+  manualOpt.value = "__manual";
+  manualOpt.textContent = "➕ Inserisci ID concorso manualmente…";
+  sel.appendChild(manualOpt);
+}
+
+function showManualCompetition(show){
+  const row = $("manualCompetitionRow");
+  if(!row) return;
+  row.style.display = show ? "block" : "none";
+}
+
 function uniq(arr){
   return Array.from(new Set(arr));
+}
+
+function getCompetitionIdFromUI(){
+  const sel = $("competitionSelect");
+  if(sel && sel.value && sel.value !== "__manual") return sel.value;
+  const inp = $("competitionId");
+  return inp ? inp.value.trim() : "";
 }
 
 async function loadArenasForCompetition(competitionId){
@@ -1536,7 +1634,24 @@ if(state.mode === "sample"){
 }
 
 function fillSetup(){
-  $("competitionId").value = state.competitionId;
+  const compInput = $("competitionId");
+  if(compInput) compInput.value = state.competitionId;
+  const compSel = $("competitionSelect");
+  if(compSel){
+    if(state.competitions.length === 0){
+      compSel.value = "";
+      showManualCompetition(false);
+    }else{
+      const found = state.competitions.find(c => String(c.id) === String(state.competitionId));
+      if(found){
+        compSel.value = String(found.id);
+        showManualCompetition(false);
+      }else{
+        compSel.value = "__manual";
+        showManualCompetition(true);
+      }
+    }
+  }
   const arenaInp = $("arenaName");
   if(arenaInp) arenaInp.value = state.arenaName;
   // render arena select if we already have arenas in memory
@@ -1545,7 +1660,7 @@ function fillSetup(){
   $("layoutSelect").value = state.layout;
 }
 function applySetup(){
-  state.competitionId = $("competitionId").value.trim();
+  state.competitionId = getCompetitionIdFromUI();
   const sel = $("arenaSelect");
   const manual = $("arenaName");
   state.arenaName = (sel && sel.value) ? sel.value.trim() : (manual ? manual.value.trim() : "");
@@ -1580,11 +1695,26 @@ function hideSetup(){
 }
 
 // make sure the setup overlay is visible on first load (in case a cached display:none sticks around)
-showSetup();
+  showSetup();
   fillSetup();
   setStatus("");
   $("clock").textContent = nowClock();
   setInterval(()=> $("clock").textContent = nowClock(), 1000);
+
+  // Carica concorsi del weekend (centrip ippici gestiti)
+  try{
+    setStatus("Carico concorsi del weekend…");
+    const list = await loadWeekendCompetitions();
+    state.competitions = list;
+    populateCompetitionSelect(list);
+    // se il competitionId attuale corrisponde a uno della lista, seleziona automaticamente
+    fillSetup();
+    setStatus(list.length ? "Concorsi caricati" : "Nessun concorso trovato");
+  }catch(e){
+    console.error(e);
+    populateCompetitionSelect([]);
+    setStatus("Impossibile caricare i concorsi (usa ID manuale)");
+  }
 
   // Arena: manual sync
   const sel = $("arenaSelect");
@@ -1601,7 +1731,7 @@ showSetup();
   const loadBtn = $("loadArenasBtn");
   if(loadBtn){
     loadBtn.addEventListener("click", async () => {
-      const comp = $("competitionId").value.trim();
+      const comp = getCompetitionIdFromUI();
       if(!comp) return;
       try{
         setStatus("Carico arene…");
@@ -1611,6 +1741,22 @@ showSetup();
       }catch(e){
         console.error(e);
         setStatus(`Errore carico arene: ${e.message}`);
+      }
+    });
+  }
+
+  const compSel = $("competitionSelect");
+  if(compSel){
+    compSel.addEventListener("change", () => {
+      if(compSel.value === "__manual"){
+        showManualCompetition(true);
+        const inp = $("competitionId");
+        if(inp) inp.focus();
+      }else{
+        showManualCompetition(false);
+        const inp = $("competitionId");
+        if(inp) inp.value = compSel.value || "";
+        state.competitionId = compSel.value || state.competitionId;
       }
     });
   }

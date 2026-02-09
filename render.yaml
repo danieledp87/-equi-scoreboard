@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: equi-scoreboard
+    env: python
+    region: frankfurt
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    envVars:
+      - key: LIVE_TOKEN
+        sync: false   # set in Render dashboard
