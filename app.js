@@ -1714,10 +1714,18 @@ function hideSetup(){
     populateCompetitionSelect(list);
     // se il competitionId attuale corrisponde a uno della lista, seleziona automaticamente
     fillSetup();
-    setStatus(list.length ? "Concorsi caricati" : "Nessun concorso trovato");
+    if(!list.length){
+      const compSel = $("competitionSelect");
+      if(compSel){ compSel.value = "__manual"; }
+      showManualCompetition(true); // abilita subito inserimento manuale se lista vuota
+    }
+    setStatus(list.length ? "Concorsi caricati" : "Nessun concorso trovato (inserisci ID manuale)");
   }catch(e){
     console.error(e);
     populateCompetitionSelect([]);
+    const compSel = $("competitionSelect");
+    if(compSel){ compSel.value = "__manual"; }
+    showManualCompetition(true);
     setStatus("Impossibile caricare i concorsi (usa ID manuale)");
   }
 
