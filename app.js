@@ -18,7 +18,7 @@ const BASE_W = 1920;
 const BASE_H = 1080;
 
 const state = {
-  competitionId: "14277",
+  competitionId: "",
   arenaName: "GIULIO CESARE",
   arenas: [],
   competitions: [],
@@ -101,6 +101,13 @@ function applyCanvasScale(){
 }
 
 window.addEventListener("resize", applyCanvasScale);
+function updateLoadBtnLabel(){
+  const btn = $("loadArenasBtn");
+  if(!btn) return;
+  const isMobile = window.innerWidth <= 768;
+  btn.textContent = isMobile ? "Carica ARENA" : "Carica";
+}
+window.addEventListener("resize", updateLoadBtnLabel);
 
 function nowClock(){
   return new Date().toLocaleTimeString("it-IT",{hour12:false});
@@ -1651,6 +1658,9 @@ function fillSetup(){
       if(found){
         compSel.value = String(found.id);
         showManualCompetition(false);
+      }else if(!state.competitionId){
+        compSel.value = "";
+        showManualCompetition(false);
       }else{
         compSel.value = "__manual";
         showManualCompetition(true);
@@ -1699,9 +1709,10 @@ function hideSetup(){
   }
 }
 
-// make sure the setup overlay is visible on first load (in case a cached display:none sticks around)
+  // make sure the setup overlay is visible on first load (in case a cached display:none sticks around)
   showSetup();
   fillSetup();
+  updateLoadBtnLabel();
   setStatus("");
   $("clock").textContent = nowClock();
   setInterval(()=> $("clock").textContent = nowClock(), 1000);
