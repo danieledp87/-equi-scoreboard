@@ -572,6 +572,15 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
 .arenaRow{display:flex;gap:10px;align-items:center}
 .smallBtn{padding:10px 14px;font-weight:950;white-space:nowrap}
 .hintMini{margin-top:8px;font-size:12px;color:rgba(255,255,255,.72)}
+@media (max-width: 768px){
+  .arenaRow{
+    flex-direction:column-reverse; /* button sopra, select sotto */
+    align-items:stretch;
+  }
+  .arenaRow button{
+    width:100%;
+  }
+}
 
 .inlineInput{
   display:inline-block;
