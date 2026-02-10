@@ -548,10 +548,12 @@ label{font-size:12px;color:var(--muted);font-weight:900;display:block;margin-bot
 input,select{
   width:100%;
   padding:10px;
+  height:42px;
   border-radius:10px;
   border:1px solid rgba(255,255,255,.16);
   background:rgba(0,0,0,.25);
-  color:var(--text)
+  color:var(--text);
+  font-size:14px
 }
 
 .controls{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap}
@@ -569,8 +571,9 @@ button{
 button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.10)}
 .hint{margin-top:8px;font-size:12px;color:var(--muted)}
 
-.arenaRow{display:flex;gap:10px;align-items:center}
-.smallBtn{padding:10px 14px;font-weight:950;white-space:nowrap}
+.arenaRow{display:flex;gap:10px;align-items:stretch}
+.arenaRow select{flex:1;min-width:0}
+.smallBtn{padding:10px 14px;height:42px;font-weight:950;white-space:nowrap;font-size:13px}
 .hintMini{margin-top:8px;font-size:12px;color:rgba(255,255,255,.72)}
 @media (max-width: 768px){
   .arenaRow{
@@ -619,6 +622,13 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   color:var(--accent);
   background:rgba(0,190,255,.12);
 }
+
+/* Ensure grid children stretch labels+inputs to same baseline */
+.grid > div{display:flex;flex-direction:column}
+.grid > div label{flex:0 0 auto}
+.grid > div select,
+.grid > div input,
+.grid > div .arenaRow{margin-top:auto}
 
 /* DESKTOP LARGE (2K and above) */
 @media (min-width: 2560px) {
@@ -686,6 +696,12 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   input, select {
     font-size: 18px;
     padding: 14px 16px;
+    height: 52px;
+  }
+
+  .smallBtn {
+    height: 52px;
+    font-size: 16px;
   }
 
   button {
@@ -871,6 +887,7 @@ button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,
   input, select {
     font-size: 16px;
     padding: 12px 10px;
+    height: 46px;
   }
 
   .arenaRow {
