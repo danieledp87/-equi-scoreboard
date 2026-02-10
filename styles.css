@@ -569,6 +569,30 @@ button{
 }
 
 button.secondary{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.10)}
+
+/* shimmer loading for selects */
+@keyframes shimmer{
+  0%{background-position:200% 0}
+  100%{background-position:-200% 0}
+}
+
+.loading-shimmer{
+  background:
+    linear-gradient(
+      100deg,
+      rgba(0,0,0,.25) 0%,
+      rgba(0,0,0,.25) 40%,
+      rgba(0,190,255,.12) 50%,
+      rgba(0,0,0,.25) 60%,
+      rgba(0,0,0,.25) 100%
+    );
+  background-size:200% 100%;
+  animation:shimmer 2s ease-in-out infinite;
+  border-color:rgba(0,190,255,.22);
+  color:rgba(255,255,255,.45);
+  pointer-events:none;
+}
+
 .hint{margin-top:8px;font-size:12px;color:var(--muted)}
 
 .arenaRow{display:flex;gap:10px;align-items:stretch}

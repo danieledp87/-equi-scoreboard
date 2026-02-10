@@ -1738,6 +1738,9 @@ function hideSetup(){
     if(compSel){ compSel.value = "__manual"; }
     showManualCompetition(true);
     setStatus("Impossibile caricare i concorsi (usa ID manuale)");
+  }finally{
+    const compSel = $("competitionSelect");
+    if(compSel) compSel.classList.remove("loading-shimmer");
   }
 
   // Arena: manual sync
