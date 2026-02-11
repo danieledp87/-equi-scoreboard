@@ -353,11 +353,13 @@ async function fetchJson(url){
 function computeWeekendWindow(){
   const now = new Date();
   now.setHours(0,0,0,0);
-  // 7 days back (catch running competitions) + 7 days ahead (catch upcoming)
+  // Current week: Monday → Sunday
+  const day = now.getDay(); // 0=Sun,1=Mon,...,6=Sat
+  const diffToMon = day === 0 ? -6 : 1 - day; // if Sunday, go back 6 days
   const start = new Date(now);
-  start.setDate(start.getDate() - 7);
-  const end = new Date(now);
-  end.setDate(end.getDate() + 7);
+  start.setDate(start.getDate() + diffToMon);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6); // Sunday
   const fmt = (d) => {
     const y = d.getFullYear();
     const m = String(d.getMonth()+1).padStart(2,"0");
@@ -401,7 +403,9 @@ async function loadWeekendCompetitions(){
       console.error("calendars fetch failed", v, e);
     }
   }
-  const list = Array.from(map.values());
+  const EXCLUDED_RE = /concorso\s+di\s+sviluppo|promozionale|dressage/i;
+  const list = Array.from(map.values())
+    .filter(c => !EXCLUDED_RE.test(c.name || ""));
   list.sort((a,b)=>{
     const aDate = new Date(a.start_date || 0).getTime();
     const bDate = new Date(b.start_date || 0).getTime();
