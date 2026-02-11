@@ -352,20 +352,12 @@ async function fetchJson(url){
 
 function computeWeekendWindow(){
   const now = new Date();
-  const day = now.getDay(); // 0=Sun ... 6=Sat
+  now.setHours(0,0,0,0);
+  // 7 days back (catch running competitions) + 7 days ahead (catch upcoming)
   const start = new Date(now);
-  start.setHours(0,0,0,0);
-  // Always go back to the most recent Thursday (or today if Thursday)
-  const daysSinceThursday = (day - 4 + 7) % 7; // 0 on Thu, 1 on Fri, …
-  start.setDate(start.getDate() - daysSinceThursday);
-  const end = new Date(start);
-  if(day >= 1 && day <= 3){
-    // Mon-Wed: cover previous weekend (still running) + upcoming weekend
-    end.setDate(start.getDate() + 10); // last Thu → next Sun
-  }else{
-    // Thu-Sun: just this weekend
-    end.setDate(start.getDate() + 3); // Thu → Sun
-  }
+  start.setDate(start.getDate() - 7);
+  const end = new Date(now);
+  end.setDate(end.getDate() + 7);
   const fmt = (d) => {
     const y = d.getFullYear();
     const m = String(d.getMonth()+1).padStart(2,"0");
