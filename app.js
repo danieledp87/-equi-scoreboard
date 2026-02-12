@@ -1262,7 +1262,15 @@ function setStats(totalDone, totalAll, standings){
     .filter(r => !isOutOfCompetition(r) && !isInvalidRank(r) && Number.isFinite(safeNum(r.time)) && safeNum(r.time) > 0 && safeNum(r.time) < 1000)
     .sort((a,b)=> rankingValue(a) - rankingValue(b))[0];
   const best = leader ? safeNum(leader.time) : null;
-  $("statAllowed").textContent = best ? `${best.toFixed(2)} s` : "—";
+  const ttbEl = $("statAllowed");
+  const ttbBox = ttbEl?.closest(".statMini");
+  const newTtb = best ? `${best.toFixed(2)} s` : "—";
+  if(ttbEl.textContent !== newTtb && best && ttbEl.textContent !== "—"){
+    ttbBox?.classList.remove("ttb-flash");
+    void ttbBox?.offsetWidth; // reflow to restart animation
+    ttbBox?.classList.add("ttb-flash");
+  }
+  ttbEl.textContent = newTtb;
   const etaEl = $("statEta");
   if(etaEl && !etaEl.classList.contains("etaPending")){
     etaEl.textContent = etaEl.textContent || "—";
