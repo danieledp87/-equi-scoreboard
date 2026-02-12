@@ -202,9 +202,15 @@ function renderCurrentBox(live, starting){
   $("currentScore").textContent = penalty;
   setPenaltyClass($("currentScore"), penalty);
 
+  // ELIM / RIT → stop timer, show "—"
+  const elimRit = available && isElimOrRit(live);
+
   let timeStr;
   if(!available){
     console.log(`[TIME] Not available - showing "—"`);
+    timeStr = "—";
+  }else if(elimRit){
+    console.log(`[TIME] ELIM/RIT detected - timer stopped, showing "—"`);
     timeStr = "—";
   }else if(isIdle){
     console.log(`[TIME] State is idle - showing "—" (no fallback)`);
@@ -230,7 +236,7 @@ function renderCurrentBox(live, starting){
     timeStr = fmtLiveTime(fTime);
   }
   $("currentTime").textContent = timeStr;
-  setStateClass($("currentTime"), live?.state);
+  setStateClass($("currentTime"), elimRit ? "idle" : live?.state);
 }
 
 function isPointsClass(meta, standings){
@@ -795,6 +801,12 @@ function nowMono(){
   return Date.now() / 1000;
 }
 
+function isElimOrRit(live){
+  const p = String(live?.penalty ?? "").toLowerCase();
+  const r = String(live?.rank ?? "").toUpperCase();
+  return p === "elim" || p === "rit" || r.includes("ELIM") || r.includes("RIT");
+}
+
 function timingReset(){
   state.liveTiming = {
     bib: null,
@@ -1047,6 +1059,12 @@ function applyTimingEvents(live){
   }else if(live.state === "finished" && live.finish_time == null){
     console.warn(`[TIMING] State is 'finished' but finish_time is null! The 'finish' event may be missing the 'time' field.`);
   }
+
+  // ELIM / RIT: stop timer immediately and reset, wait for next start
+  if(isElimOrRit(live)){
+    console.log(`[TIMING] ELIM/RIT detected (penalty=${live.penalty}, rank=${live.rank}) - resetting timer`);
+    timingReset();
+  }
 }
 
 function startLiveClock(){
@@ -1060,6 +1078,12 @@ function startLiveClock(){
     const hbStale = !live || (live.last_heartbeat && (nowS - live.last_heartbeat) > (HEARTBEAT_TTL || 60));
     const available = live && live.available && !hbStale && !fetchStale && !errorFresh;
     if(!available) return;
+    // ELIM/RIT: keep timer blanked
+    if(isElimOrRit(live)){
+      const el = $("currentTime");
+      if(el){ el.textContent = "—"; setStateClass(el, "idle"); }
+      return;
+    }
     if(live.state === "running"){
       const t = timingCurrentSeconds();
       const el = $("currentTime");
